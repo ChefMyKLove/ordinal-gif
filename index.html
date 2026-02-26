@@ -30,10 +30,8 @@
             cursor: grab;
         }
         
-        /* Thickness panels */
         .thickness-panel {
             position: absolute;
-            /* tighter, evenly spaced rainbow with stronger alpha */
             background: linear-gradient(90deg,
                 rgba(255, 0, 0, 0.6) 0%,
                 rgba(255, 165, 0, 0.6) 14%,
@@ -48,49 +46,12 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.45) inset;
         }
         
-        .thickness-top {
-            width: 350px;
-            height: 10px;
-            top: 0;
-            left: 0;
-            transform-origin: top center;
-            transform: rotateX(90deg);
-            border-radius: 15px 15px 0 0;
-        }
+        .thickness-top    { width:350px; height:10px; top:0; left:0; transform-origin:top center; transform:rotateX(90deg); border-radius:15px 15px 0 0; }
+        .thickness-bottom { width:350px; height:10px; bottom:0; left:0; transform-origin:bottom center; transform:rotateX(-90deg); border-radius:0 0 15px 15px; }
+        .thickness-left   { width:10px; height:550px; top:0; left:0; transform-origin:left center; transform:rotateY(-90deg); border-radius:15px 0 0 15px; }
+        .thickness-right  { width:10px; height:550px; top:0; right:0; transform-origin:right center; transform:rotateY(90deg); border-radius:0 15px 15px 0; }
         
-        .thickness-bottom {
-            width: 350px;
-            height: 10px;
-            bottom: 0;
-            left: 0;
-            transform-origin: bottom center;
-            transform: rotateX(-90deg);
-            border-radius: 0 0 15px 15px;
-        }
-        
-        .thickness-left {
-            width: 10px;
-            height: 550px;
-            top: 0;
-            left: 0;
-            transform-origin: left center;
-            transform: rotateY(-90deg);
-            border-radius: 15px 0 0 15px;
-        }
-        
-        .thickness-right {
-            width: 10px;
-            height: 550px;
-            top: 0;
-            right: 0;
-            transform-origin: right center;
-            transform: rotateY(90deg);
-            border-radius: 0 15px 15px 0;
-        }
-        
-        .card-container:active {
-            cursor: grabbing;
-        }
+        .card-container:active { cursor: grabbing; }
         
         .card-face {
             position: absolute;
@@ -108,49 +69,74 @@
             display: flex;
             flex-direction: column;
         }
-        
+
         .card-back {
-            background: linear-gradient(145deg, #3a2a4e 0%, #2a1a3e 100%);
-            border: 2px solid rgba(255, 255, 255, 0.15);
             transform: rotateY(180deg);
+            background: #000;
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .back-img-wrap {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 52px 20px 115px;
+        }
+
+        #frameBack {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            image-rendering: pixelated;
+            border-radius: 8px;
+            transform: scaleX(-1);
+        }
+
+        .glass-panel {
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.07);
+            -webkit-backdrop-filter: blur(18px) saturate(180%) brightness(1.06);
+            backdrop-filter: blur(18px) saturate(180%) brightness(1.06);
+            box-shadow:
+                inset 0  1px 0 rgba(255,255,255,0.55),
+                inset 0 -1px 0 rgba(255,255,255,0.10),
+                inset  1px 0 0 rgba(255,255,255,0.16),
+                inset -1px 0 0 rgba(255,255,255,0.16);
+        }
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(150deg, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0.04) 30%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .back-content {
+            position: absolute;
+            inset: 0;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            text-align: center;
+            color: #fff;
+            z-index: 2;
             padding: 30px;
         }
+
+        .back-logo     { font-size:48px; margin-bottom:20px; filter:drop-shadow(0 2px 16px rgba(0,0,0,0.9)); }
+        .back-title    { font-size:24px; font-weight:bold; margin-bottom:4px; letter-spacing:3px; text-shadow:0 2px 20px rgba(0,0,0,1); }
+        .back-subtitle { font-size:12px; color:rgba(255,255,255,0.6); margin-top:8px; margin-bottom:30px; letter-spacing:2px; text-shadow:0 1px 10px rgba(0,0,0,1); }
+        .back-series   { font-size:16px; color:rgba(255,255,255,0.9); padding:10px 20px; border:1px solid rgba(255,255,255,0.3); border-radius:5px; display:inline-block; background:rgba(0,0,0,0.25); box-shadow:inset 0 1px 0 rgba(255,255,255,0.3); text-shadow:0 1px 8px rgba(0,0,0,1); }
         
-        .card-header {
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.3);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-        }
+        .card-header { padding:15px; background:rgba(0,0,0,0.3); border-bottom:1px solid rgba(255,255,255,0.1); text-align:center; }
+        .card-title  { color:#fff; font-size:14px; font-weight:bold; letter-spacing:2px; text-transform:uppercase; }
+        .card-number { color:rgba(255,255,255,0.5); font-size:11px; margin-top:5px; }
         
-        .card-title {
-            color: #fff;
-            font-size: 14px;
-            font-weight: bold;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-        
-        .card-number {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 11px;
-            margin-top: 5px;
-        }
-        
-        .image-container {
-            flex: 1;
-            position: relative;
-            background: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            min-height: 0;
-        }
+        .image-container { flex:1; position:relative; background:#000; display:flex; justify-content:center; align-items:center; padding:20px; min-height:0; }
         
         #frame {
             max-width: 100%;
@@ -161,40 +147,39 @@
             transition: opacity 0.3s ease-in-out;
             border-radius: 8px;
         }
-        
-        #frame.visible {
-            opacity: 1;
+        #frame.visible { opacity: 1; }
+
+        /* loading indicator */
+        .loading-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f);
+            transition: width 0.2s ease;
+            width: 0%;
         }
         
         .controls {
             padding: 15px 15px 20px 15px;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%),
-                        linear-gradient(to bottom, rgba(100, 150, 255, 0.1), rgba(150, 100, 255, 0.1));
-            border-top: 1px solid rgba(255, 255, 255, 0.25);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%),
+                        linear-gradient(to bottom, rgba(100,150,255,0.1), rgba(150,100,255,0.1));
+            border-top: 1px solid rgba(255,255,255,0.25);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
             -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.2);
         }
         
-        .control-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        
-        .control-row:last-child {
-            margin-bottom: 0;
-        }
+        .control-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+        .control-row:last-child { margin-bottom:0; }
         
         button {
             padding: 8px 15px;
-            /* glassy button with subtle rainbow sheen */
             background:
                 linear-gradient(135deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.04) 60%),
                 linear-gradient(90deg, rgba(255,0,0,0.12), rgba(255,165,0,0.12), rgba(255,255,0,0.12), rgba(0,128,0,0.12), rgba(0,255,255,0.12), rgba(0,0,255,0.12), rgba(128,0,128,0.12));
-            border: 1px solid rgba(255, 255, 255, 0.28);
+            border: 1px solid rgba(255,255,255,0.28);
             color: #fff;
             border-radius: 8px;
             cursor: pointer;
@@ -202,236 +187,101 @@
             font-size: 11px;
             transition: transform 0.12s, box-shadow 0.18s, background 0.18s;
             flex-shrink: 0;
-            box-shadow: 0 6px 20px rgba(30, 60, 120, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            box-shadow: 0 6px 20px rgba(30,60,120,0.35), inset 0 1px 0 rgba(255,255,255,0.25);
             -webkit-backdrop-filter: blur(8px);
             backdrop-filter: blur(8px);
         }
+        button:hover { transform:translateY(-2px); border-color:rgba(255,255,255,0.55); box-shadow:0 10px 28px rgba(60,120,220,0.28), inset 0 1px 0 rgba(255,255,255,0.35); }
         
-        button:hover {
-            transform: translateY(-2px);
-            border-color: rgba(255, 255, 255, 0.55);
-            box-shadow: 0 10px 28px rgba(60, 120, 220, 0.28), inset 0 1px 0 rgba(255,255,255,0.35);
-        }
-        
-        input[type="range"] {
-            flex: 1;
-            height: 8px;
-            background: transparent;
-            border-radius: 4px;
-            outline: none;
-            -webkit-appearance: none;
-            margin: 0 6px;
-        }
-
-        /* rainbow glass track */
+        input[type="range"] { flex:1; height:8px; background:transparent; border-radius:4px; outline:none; -webkit-appearance:none; margin:0 6px; }
         input[type="range"]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 8px;
-            background:
-                linear-gradient(rgba(255,255,255,0.08), rgba(255,255,255,0.02)),
-                linear-gradient(to right, rgba(255,0,0,0.7) 0%, rgba(255,165,0,0.7) 14%, rgba(255,255,0,0.7) 28%, rgba(0,128,0,0.7) 42%, rgba(0,255,255,0.7) 57%, rgba(0,0,255,0.7) 71%, rgba(128,0,128,0.7) 85%);
-            border-radius: 6px;
-            border: 1px solid rgba(255,255,255,0.08);
-            box-shadow: inset 0 2px 6px rgba(0,0,0,0.55), 0 6px 18px rgba(30,80,160,0.12);
-            background-blend-mode: overlay;
+            width:100%; height:8px;
+            background: linear-gradient(rgba(255,255,255,0.08),rgba(255,255,255,0.02)), linear-gradient(to right, rgba(255,0,0,0.7) 0%, rgba(255,165,0,0.7) 14%, rgba(255,255,0,0.7) 28%, rgba(0,128,0,0.7) 42%, rgba(0,255,255,0.7) 57%, rgba(0,0,255,0.7) 71%, rgba(128,0,128,0.7) 85%);
+            border-radius:6px; border:1px solid rgba(255,255,255,0.08);
+            box-shadow:inset 0 2px 6px rgba(0,0,0,0.55), 0 6px 18px rgba(30,80,160,0.12); background-blend-mode:overlay;
         }
-
         input[type="range"]::-moz-range-track {
-            width: 100%;
-            height: 8px;
-            background:
-                linear-gradient(rgba(255,255,255,0.08), rgba(255,255,255,0.02)),
-                linear-gradient(to right, rgba(255,0,0,0.7) 0%, rgba(255,165,0,0.7) 14%, rgba(255,255,0,0.7) 28%, rgba(0,128,0,0.7) 42%, rgba(0,255,255,0.7) 57%, rgba(0,0,255,0.7) 71%, rgba(128,0,128,0.7) 85%);
-            border-radius: 6px;
-            border: 1px solid rgba(255,255,255,0.08);
-            box-shadow: inset 0 2px 6px rgba(0,0,0,0.55), 0 6px 18px rgba(30,80,160,0.12);
+            width:100%; height:8px;
+            background: linear-gradient(rgba(255,255,255,0.08),rgba(255,255,255,0.02)), linear-gradient(to right, rgba(255,0,0,0.7) 0%, rgba(255,165,0,0.7) 14%, rgba(255,255,0,0.7) 28%, rgba(0,128,0,0.7) 42%, rgba(0,255,255,0.7) 57%, rgba(0,0,255,0.7) 71%, rgba(128,0,128,0.7) 85%);
+            border-radius:6px; border:1px solid rgba(255,255,255,0.08); box-shadow:inset 0 2px 6px rgba(0,0,0,0.55);
         }
-        
         input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.9);
-            /* translucent white with layered sheen so track colors show through */
-            background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.85) 30%, rgba(255,255,255,0.55) 55%, rgba(255,255,255,0.18) 70%, rgba(255,255,255,0.06) 100%);
-            box-shadow: 0 8px 22px rgba(30,100,200,0.28), 0 3px 8px rgba(0,0,0,0.5), inset -1px -1px 2px rgba(0,0,0,0.18);
-            mix-blend-mode: overlay;
-            -webkit-backdrop-filter: blur(6px) saturate(140%);
-            backdrop-filter: blur(6px) saturate(140%);
-            transition: transform 0.08s, box-shadow 0.12s;
-            /* center the thumb vertically on the track (thumbHeight 18px, trackHeight 8px => offset -5px) */
-            margin-top: -5px;
+            -webkit-appearance:none; width:18px; height:18px; border-radius:50%; cursor:pointer;
+            border:1px solid rgba(255,255,255,0.9);
+            background:radial-gradient(circle at 35% 30%, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.85) 30%, rgba(255,255,255,0.55) 55%, rgba(255,255,255,0.18) 70%, rgba(255,255,255,0.06) 100%);
+            box-shadow:0 8px 22px rgba(30,100,200,0.28), 0 3px 8px rgba(0,0,0,0.5), inset -1px -1px 2px rgba(0,0,0,0.18);
+            mix-blend-mode:overlay; -webkit-backdrop-filter:blur(6px) saturate(140%); backdrop-filter:blur(6px) saturate(140%);
+            transition:transform 0.08s, box-shadow 0.12s; margin-top:-5px;
         }
-        
         input[type="range"]::-moz-range-thumb {
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.9);
-            background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.85) 30%, rgba(255,255,255,0.55) 55%, rgba(255,255,255,0.18) 70%, rgba(255,255,255,0.06) 100%);
-            box-shadow: 0 8px 22px rgba(30,100,200,0.28), 0 3px 8px rgba(0,0,0,0.5), inset -1px -1px 2px rgba(0,0,0,0.18);
-            mix-blend-mode: overlay;
-            backdrop-filter: blur(6px) saturate(140%);
-            /* Firefox needs a translate to vertically center */
-            transform: translateY(-5px);
+            width:18px; height:18px; border-radius:50%; cursor:pointer; border:1px solid rgba(255,255,255,0.9);
+            background:radial-gradient(circle at 35% 30%, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.85) 30%, rgba(255,255,255,0.55) 55%, rgba(255,255,255,0.18) 70%, rgba(255,255,255,0.06) 100%);
+            box-shadow:0 8px 22px rgba(30,100,200,0.28), 0 3px 8px rgba(0,0,0,0.5), inset -1px -1px 2px rgba(0,0,0,0.18);
+            mix-blend-mode:overlay; backdrop-filter:blur(6px) saturate(140%); transform:translateY(-5px);
         }
-
         input[type="range"]:active::-webkit-slider-thumb,
-        input[type="range"]:active::-moz-range-thumb {
-            transform: scale(0.98);
-            box-shadow: 0 6px 14px rgba(30,100,200,0.22), 0 2px 6px rgba(0,0,0,0.45), inset -1px -1px 2px rgba(0,0,0,0.18);
-        }
+        input[type="range"]:active::-moz-range-thumb { transform:scale(0.98); box-shadow:0 6px 14px rgba(30,100,200,0.22), 0 2px 6px rgba(0,0,0,0.45), inset -1px -1px 2px rgba(0,0,0,0.18); }
         
-        label {
-            font-size: 10px;
-            color: rgba(255, 255, 255, 0.8);
-            min-width: 45px;
-            text-shadow: 0 1px 3px rgba(100, 150, 255, 0.3);
-        }
+        label { font-size:10px; color:rgba(255,255,255,0.8); min-width:45px; text-shadow:0 1px 3px rgba(100,150,255,0.3); }
+        .value-display { font-size:10px; color:rgba(255,255,255,0.9); min-width:50px; text-align:right; flex-shrink:0; text-shadow:0 1px 3px rgba(100,150,255,0.3); }
         
-        .value-display {
-            font-size: 10px;
-            color: rgba(255, 255, 255, 0.9);
-            min-width: 50px;
-            text-align: right;
-            flex-shrink: 0;
-            text-shadow: 0 1px 3px rgba(100, 150, 255, 0.3);
-        }
+        .rotation-hint { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,0.4); font-size:12px; text-align:center; }
+        .reset-btn { position:fixed; top:20px; right:20px; padding:10px 20px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:5px; cursor:pointer; font-family:'Courier New',monospace; font-size:12px; transition:all 0.2s; }
+        .reset-btn:hover { background:rgba(255,255,255,0.2); border-color:rgba(255,255,255,0.4); }
         
-        .back-content {
-            text-align: center;
-            color: #fff;
-        }
-        
-        .back-logo {
-            font-size: 48px;
-            margin-bottom: 20px;
-            opacity: 0.3;
-        }
-        
-        .back-title {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            letter-spacing: 3px;
-        }
-        
-        .back-subtitle {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.5);
-            margin-bottom: 30px;
-        }
-        
-        .back-series {
-            font-size: 16px;
-            color: rgba(255, 255, 255, 0.7);
-            padding: 10px 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 5px;
-            display: inline-block;
-        }
-        
-        .rotation-hint {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 12px;
-            text-align: center;
-        }
-        
-        .reset-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 10px 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fff;
-            border-radius: 5px;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-        
-        .reset-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.4);
-        }
-        
-        .holographic-effect {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(
-                45deg,
-                rgba(255, 0, 255, 0.1) 0%,
-                rgba(0, 255, 255, 0.1) 50%,
-                rgba(255, 255, 0, 0.1) 100%
-            );
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            border-radius: 15px;
-        }
-        
-        .card-front:hover .holographic-effect {
-            opacity: 0.3;
-        }
+        .holographic-effect { position:absolute; top:0; left:0; right:0; bottom:0; background:linear-gradient(45deg, rgba(255,0,255,0.1) 0%, rgba(0,255,255,0.1) 50%, rgba(255,255,0,0.1) 100%); opacity:0; transition:opacity 0.3s; pointer-events:none; border-radius:15px; }
+        .card-front:hover .holographic-effect { opacity:0.3; }
+
+        .overlay { position:fixed; inset:0; display:none; align-items:center; justify-content:center; flex-direction:column; background:rgba(3,6,12,0.92); z-index:9999; padding:40px; }
+        .overlay.open { display:flex; }
+        .overlay-inner { max-width:100%; max-height:100%; width:calc(100% - 120px); height:calc(100% - 120px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; position:relative; }
+        .overlay img { max-width:100%; max-height:100%; border-radius:10px; box-shadow:0 30px 80px rgba(0,0,0,0.7); image-rendering:pixelated; }
+        .overlay-hint { margin-top:12px; color:rgba(255,255,255,0.85); font-size:13px; background:rgba(255,255,255,0.03); padding:6px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.04); text-align:center; cursor:pointer; }
     </style>
 </head>
 <body>
     <button class="reset-btn" id="resetBtn">↺ RESET VIEW</button>
     
     <div class="card-container" id="cardContainer">
-        <!-- Thickness panels -->
         <div class="thickness-panel thickness-top"></div>
         <div class="thickness-panel thickness-bottom"></div>
         <div class="thickness-panel thickness-left"></div>
         <div class="thickness-panel thickness-right"></div>
         
-        <!-- FRONT OF CARD -->
         <div class="card-face card-front">
             <div class="holographic-effect"></div>
-            
             <div class="card-header">
                 <div class="card-title">RAINBOW LEGENDS</div>
                 <div class="card-number">CARD #1 OF 16</div>
             </div>
-            
             <div class="image-container">
                 <img id="frame" alt="Rainbow Animation">
+                <div class="loading-bar" id="loadingBar"></div>
             </div>
-            
             <div class="controls">
                 <div class="control-row">
                     <button id="playPause">⏸</button>
                     <button id="reverseBtn" title="Reverse">⤺</button>
+                    <button id="fullBtn" title="Fullscreen">⤢</button>
                 </div>
-                
                 <div class="control-row">
                     <label for="fpsSlider">SPD:</label>
-                    <input type="range" id="fpsSlider" min="1" max="30" value="10">
-                    <span class="value-display" id="fpsDisplay">10</span>
+                    <input type="range" id="fpsSlider" min="1" max="30" value="14">
+                    <span class="value-display" id="fpsDisplay">14</span>
                 </div>
-                
                 <div class="control-row">
                     <label for="fadeSlider">FADE:</label>
-                    <input type="range" id="fadeSlider" min="0" max="1000" value="500" step="50">
-                    <span class="value-display" id="fadeDisplay">500</span>
+                    <input type="range" id="fadeSlider" min="0" max="1000" value="150" step="50">
+                    <span class="value-display" id="fadeDisplay">150</span>
                 </div>
             </div>
         </div>
         
-        <!-- BACK OF CARD -->
         <div class="card-face card-back">
+            <div class="back-img-wrap">
+                <img id="frameBack" alt="">
+            </div>
+            <div class="glass-panel"></div>
             <div class="back-content">
                 <div class="back-logo">🌈</div>
                 <div class="back-title">ORDINAL</div>
@@ -443,6 +293,12 @@
     </div>
     
     <div class="rotation-hint">Drag to rotate • Double-click to reset</div>
+    <div id="overlay" class="overlay" aria-hidden="true">
+        <div class="overlay-inner">
+            <img id="overlayFrame" alt="Fullscreen Rainbow Animation">
+            <div id="overlayHint" class="overlay-hint" role="button" tabindex="0">Press ESC to exit</div>
+        </div>
+    </div>
     
     <script>
         var frames = [
@@ -457,33 +313,33 @@
         ];
         
         var apiBase = 'https://ordinals.gorillapool.io/content/';
-        
         var currentFrame = 0;
-        var fps = 10;
-        var fadeDuration = 500;
-        var direction = 1; // 1 = forward, -1 = reverse
+        var fps = 14;
+        var fadeDuration = 150;
+        var direction = 1;
         var interval;
-        var isPlaying = true;
+        var isPlaying = false;  // start paused until preload done
         var loadedFrames = {};
-        
-        var img = document.getElementById('frame');
-        var fpsSlider = document.getElementById('fpsSlider');
+        var loadedCount = 0;
+
+        var img        = document.getElementById('frame');
+        var imgBack    = document.getElementById('frameBack');
+        var loadingBar = document.getElementById('loadingBar');
+        var fpsSlider  = document.getElementById('fpsSlider');
         var fpsDisplay = document.getElementById('fpsDisplay');
         var fadeSlider = document.getElementById('fadeSlider');
-        var fadeDisplay = document.getElementById('fadeDisplay');
+        var fadeDisplay= document.getElementById('fadeDisplay');
         var playPauseBtn = document.getElementById('playPause');
         var reverseBtn = document.getElementById('reverseBtn');
+        var fullBtn    = document.getElementById('fullBtn');
+        var overlay    = document.getElementById('overlay');
+        var overlayImg = document.getElementById('overlayFrame');
+        var overlayHint= document.getElementById('overlayHint');
         var cardContainer = document.getElementById('cardContainer');
-        var resetBtn = document.getElementById('resetBtn');
+        var resetBtn   = document.getElementById('resetBtn');
         
-        // 3D rotation variables
-        var isDragging = false;
-        var startX = 0;
-        var startY = 0;
-        var rotateX = 0;
-        var rotateY = 0;
-        var currentRotateX = 0;
-        var currentRotateY = 0;
+        var isDragging = false, startX = 0, startY = 0;
+        var rotateX = 0, rotateY = 0, currentRotateX = 0, currentRotateY = 0;
         
         function updateCardRotation() {
             cardContainer.style.transform = 'rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg)';
@@ -491,123 +347,87 @@
         
         cardContainer.addEventListener('mousedown', function(e) {
             if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
-                isDragging = true;
-                startX = e.clientX;
-                startY = e.clientY;
-                currentRotateX = rotateX;
-                currentRotateY = rotateY;
-                cardContainer.style.transition = 'none';
-                e.preventDefault();
+                isDragging = true; startX = e.clientX; startY = e.clientY;
+                currentRotateX = rotateX; currentRotateY = rotateY;
+                cardContainer.style.transition = 'none'; e.preventDefault();
             }
         });
-        
         document.addEventListener('mousemove', function(e) {
             if (isDragging) {
-                var deltaX = e.clientX - startX;
-                var deltaY = e.clientY - startY;
-                
-                rotateY = currentRotateY + (deltaX * 0.5);
-                rotateX = currentRotateX - (deltaY * 0.5);
-                
-                // Clamp rotateX to prevent over-rotation
+                rotateY = currentRotateY + (e.clientX - startX) * 0.5;
+                rotateX = currentRotateX - (e.clientY - startY) * 0.5;
                 rotateX = Math.max(-90, Math.min(90, rotateX));
-                
                 updateCardRotation();
             }
         });
-        
         document.addEventListener('mouseup', function() {
-            if (isDragging) {
-                isDragging = false;
-                cardContainer.style.transition = 'transform 0.1s ease-out';
-            }
+            if (isDragging) { isDragging = false; cardContainer.style.transition = 'transform 0.1s ease-out'; }
         });
         
-        // Reset rotation
         function resetRotation() {
-            rotateX = 0;
-            rotateY = 0;
+            rotateX = 0; rotateY = 0;
             cardContainer.style.transition = 'transform 0.5s ease-out';
             updateCardRotation();
         }
-        
         resetBtn.addEventListener('click', resetRotation);
-        
         cardContainer.addEventListener('dblclick', function(e) {
-            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
-                resetRotation();
-            }
+            if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') resetRotation();
         });
         
-        // Touch support for mobile
         cardContainer.addEventListener('touchstart', function(e) {
             if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
-                isDragging = true;
-                startX = e.touches[0].clientX;
-                startY = e.touches[0].clientY;
-                currentRotateX = rotateX;
-                currentRotateY = rotateY;
-                cardContainer.style.transition = 'none';
+                isDragging = true; startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+                currentRotateX = rotateX; currentRotateY = rotateY; cardContainer.style.transition = 'none';
             }
         });
-        
         document.addEventListener('touchmove', function(e) {
             if (isDragging) {
-                var deltaX = e.touches[0].clientX - startX;
-                var deltaY = e.touches[0].clientY - startY;
-                
-                rotateY = currentRotateY + (deltaX * 0.5);
-                rotateX = currentRotateX - (deltaY * 0.5);
-                
+                rotateY = currentRotateY + (e.touches[0].clientX - startX) * 0.5;
+                rotateX = currentRotateX - (e.touches[0].clientY - startY) * 0.5;
                 rotateX = Math.max(-90, Math.min(90, rotateX));
-                
                 updateCardRotation();
             }
         });
-        
         document.addEventListener('touchend', function() {
-            if (isDragging) {
-                isDragging = false;
-                cardContainer.style.transition = 'transform 0.1s ease-out';
-            }
+            if (isDragging) { isDragging = false; cardContainer.style.transition = 'transform 0.1s ease-out'; }
         });
         
-        // Animation functions
         function updateFadeTransition() {
             img.style.transition = 'opacity ' + (fadeDuration / 1000) + 's ease-in-out';
         }
         
         function animate() {
             img.classList.remove('visible');
-            
             setTimeout(function() {
-                img.src = apiBase + frames[currentFrame];
+                var src = apiBase + frames[currentFrame];
+                img.src = src;
+                imgBack.src = src;
                 img.classList.add('visible');
                 currentFrame = (currentFrame + direction + frames.length) % frames.length;
+                if (overlay.classList.contains('open')) overlayImg.src = src;
             }, fadeDuration / 2);
         }
         
+        var restartDebounce = null;
         function startAnimation() {
-            if (interval) clearInterval(interval);
-            var frameTime = Math.max(1000 / fps, fadeDuration);
-            interval = setInterval(animate, frameTime);
+            if (restartDebounce) clearTimeout(restartDebounce);
+            restartDebounce = setTimeout(function() {
+                if (interval) clearInterval(interval);
+                var frameTime = Math.max(1000 / fps, fadeDuration);
+                interval = setInterval(animate, frameTime);
+            }, 80);
         }
         
         fpsSlider.addEventListener('input', function(e) {
             fps = parseInt(e.target.value);
             fpsDisplay.textContent = fps;
-            if (isPlaying) {
-                startAnimation();
-            }
+            if (isPlaying) startAnimation();
         });
-        
         fadeSlider.addEventListener('input', function(e) {
             fadeDuration = parseInt(e.target.value);
             fadeDisplay.textContent = fadeDuration;
             updateFadeTransition();
-            if (isPlaying) {
-                startAnimation();
-            }
+            if (isPlaying) startAnimation();
         });
         
         playPauseBtn.addEventListener('click', function() {
@@ -620,38 +440,67 @@
                 clearInterval(interval);
             }
         });
-
-        // Reverse playback direction
         reverseBtn.addEventListener('click', function() {
             direction = -direction;
-            // flash button to indicate change
             reverseBtn.style.transform = 'scale(0.95)';
             setTimeout(function() { reverseBtn.style.transform = ''; }, 120);
         });
-        
-        img.onload = function() {
-            img.classList.add('visible');
-        };
-        
-        // Preload all frames
-        frames.forEach(function(frame) {
-            var preloadImg = new Image();
-            preloadImg.src = apiBase + frame;
+
+        function openOverlay() {
+            overlay.classList.add('open'); overlay.setAttribute('aria-hidden','false');
+            overlayImg.src = img.src; document.body.style.overflow = 'hidden';
+        }
+        function closeOverlay() {
+            overlay.classList.remove('open'); overlay.setAttribute('aria-hidden','true');
+            document.body.style.overflow = '';
+        }
+        fullBtn.addEventListener('click', function() {
+            overlay.classList.contains('open') ? closeOverlay() : openOverlay();
         });
-        
-        // Initialize fade transition first
-        updateFadeTransition();
-        
-        // Set default FPS display
-        fpsDisplay.textContent = fps;
-        fadeDisplay.textContent = fadeDuration;
-        
-        img.src = apiBase + frames[0];
-        
-        // Start animation after a brief delay to ensure image is loaded
-        setTimeout(function() {
-            startAnimation();
-        }, 100);
+        document.addEventListener('keydown', function(e) {
+            if ((e.key === 'Escape' || e.key === 'Esc') && overlay.classList.contains('open')) closeOverlay();
+        });
+        overlay.addEventListener('click', function(e) { if (e.target === overlay) closeOverlay(); });
+        if (overlayHint) {
+            overlayHint.addEventListener('click', closeOverlay);
+            overlayHint.addEventListener('keydown', function(e) {
+                if (e.key==='Enter'||e.key===' '||e.key==='Spacebar') { e.preventDefault(); closeOverlay(); }
+            });
+        }
+
+        img.onload = function() { img.classList.add('visible'); };
+
+        // ── PRELOAD ALL FRAMES BEFORE STARTING ──────────────────────────
+        // Store Image objects so browser keeps them cached.
+        // Only start animating once every frame has loaded.
+        var preloadImages = [];
+
+        function onFrameLoaded() {
+            loadedCount++;
+            loadingBar.style.width = (loadedCount / frames.length * 100) + '%';
+            if (loadedCount === frames.length) {
+                // all frames in cache — hide bar, start playing
+                loadingBar.style.width = '100%';
+                setTimeout(function() { loadingBar.style.display = 'none'; }, 300);
+                isPlaying = true;
+                playPauseBtn.textContent = '⏸';
+                updateFadeTransition();
+                fpsDisplay.textContent = fps;
+                fadeDisplay.textContent = fadeDuration;
+                var initialSrc = apiBase + frames[0];
+                img.src = initialSrc;
+                imgBack.src = initialSrc;
+                startAnimation();
+            }
+        }
+
+        frames.forEach(function(frame) {
+            var p = new Image();
+            p.onload = onFrameLoaded;
+            p.onerror = onFrameLoaded; // count errors too so we don't hang forever
+            p.src = apiBase + frame;
+            preloadImages.push(p); // keep reference so GC doesn't dump them
+        });
     </script>
 </body>
 </html>
