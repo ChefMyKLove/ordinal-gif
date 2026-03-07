@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mint — Rainbow Legends · Splash</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg0: #040406;
+      --bg1: #0b0b10;
+      --panel: rgba(255,255,255,0.03);
+      --border: rgba(255,255,255,0.06);
+      --text: #e0e0e0;
+      --muted: #777;
+      --mono: 'Courier New', Courier, monospace;
+      --r1:#ff4d4d; --r2:#ff8c00; --r3:#ffe000;
+      --r4:#00c853; --r5:#00cfff; --r6:#7b51ff; --r7:#e040fb;
+      --success: #4cff91;
+      --error: #ff6b6b;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(ellipse at 50% 0%, #12102a 0%, #060608 55%);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .rainbow-bar {
+      height: 3px;
+      background: linear-gradient(90deg,
+        var(--r1) 0%, var(--r2) 16%, var(--r3) 32%,
+        var(--r4) 48%, var(--r5) 64%, var(--r6) 80%, var(--r7) 100%);
+    }
+
+    header {
+      display: flex; align-items: center; gap: 16px;
+      padding: 22px 36px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .logo-mark {
+      width: 42px; height: 42px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--r6), var(--r1));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 900; color: #fff; flex-shrink: 0;
+    }
+    .header-text h1 { font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: #fff; }
+    .header-text p  { font-size: 11px; color: var(--muted); letter-spacing: 1px; margin-top: 2px; }
+    .pill { display: inline-block; padding: 4px 12px; border: 1px solid var(--border); border-radius: 20px; font-size: 10px; color: var(--muted); letter-spacing: 1px; margin-left: auto; }
+
+    .page {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 24px;
+      max-width: 1060px;
+      margin: 32px auto;
+      padding: 0 28px 60px;
+      align-items: start;
+    }
+
+    /* ── CARD PREVIEW ── */
+    .left-col { position: sticky; top: 28px; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+
+    .preview-card {
+      width: 240px; height: 370px;
+      position: relative; border-radius: 14px;
+      background: #000; overflow: hidden;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.10), 0 24px 80px rgba(0,0,0,0.85), 0 0 60px rgba(100,60,220,0.15);
+    }
+
+    #previewImg {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; image-rendering: pixelated;
+      transition: opacity 1.4s ease-in-out;
+    }
+    #previewImg.fading { opacity: 0; }
+
+    .preview-glass {
+      position: absolute; inset: 0;
+      background: rgba(255,255,255,0.055);
+      -webkit-backdrop-filter: blur(20px) saturate(180%) brightness(1.05);
+      backdrop-filter: blur(20px) saturate(180%) brightness(1.05);
+      box-shadow:
+        inset 0  2px 0 rgba(255,255,255,0.50),
+        inset 0 -1px 0 rgba(255,255,255,0.07),
+        inset  1px 0 0 rgba(255,255,255,0.13),
+        inset -1px 0 0 rgba(255,255,255,0.13),
+        inset 0  0 60px rgba(150,120,255,0.07);
+      pointer-events: none;
+    }
+    .preview-glass::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(155deg, rgba(255,255,255,0.17) 0%, rgba(255,255,255,0.03) 28%, transparent 55%);
+      pointer-events: none;
+    }
+    .preview-glass::after {
+      content: ''; position: absolute;
+      top: 0; left: 8%; right: 8%; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.75) 30%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.75) 70%, transparent);
+      border-radius: 50%;
+    }
+
+    .preview-content {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 24px; z-index: 2;
+    }
+    .preview-logo  { font-size: 34px; margin-bottom: 12px; filter: drop-shadow(0 2px 14px rgba(0,0,0,0.95)); }
+    .preview-title { font-size: 17px; font-weight: bold; letter-spacing: 3px; text-shadow: 0 2px 22px rgba(0,0,0,1); color: #fff; }
+    .preview-sub   { font-size: 9px; color: rgba(255,255,255,0.5); margin-top: 6px; letter-spacing: 2px; text-shadow: 0 1px 8px rgba(0,0,0,1); }
+    .preview-badge {
+      margin-top: 16px; font-size: 11px; color: rgba(255,255,255,0.85);
+      padding: 7px 14px; border: 1px solid rgba(255,255,255,0.26);
+      border-radius: 5px; background: rgba(0,0,0,0.28);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.22);
+      text-shadow: 0 1px 8px rgba(0,0,0,1); letter-spacing: 1px;
+    }
+    .preview-num { margin-top: 9px; font-size: 10px; color: rgba(255,255,255,0.38); letter-spacing: 2px; }
+    .preview-strip { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--r1), var(--r2), var(--r3), var(--r4), var(--r5), var(--r6), var(--r7)); }
+
+    /* ── WALLET ── */
+    .wallet-section {
+      width: 100%; background: var(--panel);
+      border: 1px solid var(--border); border-radius: 10px; padding: 16px;
+    }
+    .section-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+    #walletNotice  { font-size: 11px; color: var(--error); margin-bottom: 10px; display: none; }
+    .wallet-row    { display: flex; align-items: center; gap: 12px; }
+    .addr-block    { flex: 1; min-width: 0; }
+    .addr-line     { font-size: 10px; color: var(--muted); margin-bottom: 2px; }
+    .addr-value    { font-size: 11px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 16px; border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: linear-gradient(135deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02));
+      color: #fff; font-family: var(--mono); font-size: 11px;
+      letter-spacing: 1px; cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
+    }
+    .btn:hover:not(:disabled) { border-color: rgba(255,255,255,0.28); background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05)); transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .btn-mint { width: 100%; justify-content: center; padding: 13px; font-size: 13px; font-weight: 700; letter-spacing: 2px; background: linear-gradient(90deg, var(--r1), var(--r6)); border-color: transparent; }
+    .btn-mint:hover:not(:disabled) { filter: brightness(1.12); border-color: transparent; }
+
+    /* ── RIGHT COL ── */
+    .right-col { display: flex; flex-direction: column; gap: 20px; }
+    .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+
+    /* ── COLLECTION GRID ── */
+    .collection-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+
+    .mint-card {
+      border-radius: 8px; border: 1px solid var(--border);
+      overflow: hidden; cursor: pointer;
+      transition: all 0.18s ease; position: relative; background: #080810;
+    }
+    .mint-card:hover:not(.minted):not(.coming) { border-color: rgba(123,81,255,0.55); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(100,60,220,0.22); }
+    .mint-card.selected { border-color: var(--r6); box-shadow: 0 0 0 1px var(--r6), 0 8px 24px rgba(100,60,220,0.28); }
+    .mint-card.minted   { opacity: 0.35; cursor: not-allowed; filter: grayscale(0.7); }
+    .mint-card.coming   { opacity: 0.22; cursor: not-allowed; }
+
+    /* animated frame area */
+    .mc-img {
+      width: 100%; aspect-ratio: 3/4;
+      position: relative; background: #050508; overflow: hidden;
+    }
+    .mc-frame {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; image-rendering: pixelated;
+      transition: opacity 1.2s ease-in-out;
+    }
+    .mc-frame.fading { opacity: 0; }
+
+    /* mini glass layer */
+    .mc-glass {
+      position: absolute; inset: 0;
+      background: rgba(255,255,255,0.045);
+      -webkit-backdrop-filter: blur(10px) saturate(160%) brightness(1.04);
+      backdrop-filter: blur(10px) saturate(160%) brightness(1.04);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.42),
+        inset 0 -1px 0 rgba(255,255,255,0.05),
+        inset 1px 0 0 rgba(255,255,255,0.10),
+        inset -1px 0 0 rgba(255,255,255,0.10);
+      pointer-events: none;
+    }
+    .mc-glass::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(150deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.02) 30%, transparent 55%);
+      pointer-events: none;
+    }
+    .mc-glass::after {
+      content: ''; position: absolute;
+      top: 0; left: 10%; right: 10%; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.65) 40%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0.65) 60%, transparent);
+    }
+
+    /* card label over glass */
+    .mc-label {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 2; gap: 4px;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.9);
+    }
+    .mc-emoji { font-size: 20px; filter: drop-shadow(0 1px 6px rgba(0,0,0,0.8)); }
+    .mc-cardnum { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.85); letter-spacing: 1px; }
+
+    /* bottom strip on each mini card */
+    .mc-strip {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--r1), var(--r2), var(--r3), var(--r4), var(--r5), var(--r6), var(--r7));
+    }
+
+    .mc-info { padding: 5px 7px; border-top: 1px solid var(--border); }
+    .mc-num  { font-size: 9px; color: var(--muted); letter-spacing: 1px; }
+    .mc-status { font-size: 9px; font-weight: 700; letter-spacing: 1px; margin-top: 2px; }
+    .mc-status.available { color: var(--success); }
+    .mc-status.minted    { color: var(--muted); }
+    .mc-status.coming    { color: rgba(255,255,255,0.18); }
+    .mc-overlay { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.55); align-items: center; justify-content: center; font-size: 20px; z-index: 3; }
+    .mint-card.minted .mc-overlay { display: flex; }
+
+    /* ── MINT PANEL ── */
+    .mint-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+    .detail-item .dk { font-size: 10px; color: var(--muted); letter-spacing: 1px; margin-bottom: 3px; }
+    .detail-item .dv { font-size: 13px; color: #ddd; }
+    #statusMsg { font-size: 11px; color: var(--muted); margin-top: 10px; min-height: 18px; }
+    #resultArea { font-size: 12px; color: var(--muted); line-height: 1.8; margin-top: 12px; }
+    #resultArea a { color: var(--success); text-decoration: none; word-break: break-all; }
+    #resultArea a:hover { text-decoration: underline; }
+    .result-success { color: var(--success); }
+    .result-error   { color: var(--error); }
+    #fallbackBox  { display: none; margin-top: 12px; }
+    #fallbackText { width: 100%; height: 90px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 6px; color: #bbb; font-family: var(--mono); font-size: 11px; padding: 10px; resize: vertical; }
+
+    /* ── JSON ── */
+    .json-pre { background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; padding: 14px; font-size: 11px; color: #b0b0c0; line-height: 1.7; overflow: auto; max-height: 260px; white-space: pre; }
+    .jk { color: #7b9fff; } .js { color: #78e08f; } .jn { color: #ffbb55; }
+
+    @media (max-width: 740px) {
+      .page { grid-template-columns: 1fr; }
+      .left-col { position: static; }
+      .collection-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="rainbow-bar"></div>
+<header>
+  <div class="logo-mark">OR</div>
+  <div class="header-text">
+    <h1>Rainbow Legends · Mint</h1>
+    <p>16-piece animated ordinal series · BSV mainnet</p>
+  </div>
+  <span class="pill">SPLASH PLATFORM</span>
+</header>
+
+<div class="page">
+
+  <!-- LEFT -->
+  <div class="left-col">
+    <div class="preview-card">
+      <img id="previewImg" alt="Preview" />
+      <div class="preview-glass"></div>
+      <div class="preview-content">
+        <div class="preview-logo">🌈</div>
+        <div class="preview-title">ORDINAL</div>
+        <div class="preview-title">RAINBOWS</div>
+        <div class="preview-sub">ANIMATED SERIES</div>
+        <div class="preview-badge">LEGENDARY EDITION</div>
+        <div class="preview-num" id="previewNum">CARD #1 OF 16</div>
+      </div>
+      <div class="preview-strip"></div>
+    </div>
+
+    <div class="wallet-section">
+      <div class="section-label">Wallet</div>
+      <div id="walletNotice"></div>
+      <div class="wallet-row">
+        <button class="btn" id="connectBtn">⬡ Connect</button>
+        <div class="addr-block">
+          <div class="addr-line">BSV address</div>
+          <div class="addr-value" id="bsvAddrEl">—</div>
+          <div class="addr-line" style="margin-top:5px">Ordinals address</div>
+          <div class="addr-value" id="ordAddrEl">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right-col">
+
+    <div class="panel">
+      <div class="section-label" style="margin-bottom:14px">Collection · Select a card to mint</div>
+      <div class="collection-grid" id="collectionGrid"></div>
+    </div>
+
+    <div class="panel">
+      <div class="section-label" style="margin-bottom:14px">Mint Details</div>
+      <div class="mint-detail-grid">
+        <div class="detail-item"><div class="dk">Collection</div><div class="dv">ordinal-gif-legacy-edition</div></div>
+        <div class="detail-item"><div class="dk">Piece ID</div><div class="dv" id="dPiece">legacy-001</div></div>
+        <div class="detail-item"><div class="dk">Edition</div><div class="dv" id="dEdition">1 of 16</div></div>
+        <div class="detail-item"><div class="dk">Platform</div><div class="dv">Splash</div></div>
+        <div class="detail-item" style="grid-column:span 2">
+          <div class="dk">Artist wallet</div>
+          <div class="dv addr-value" id="dArtist">Connect wallet to populate</div>
+        </div>
+      </div>
+      <button class="btn btn-mint" id="mintBtn" disabled>⬡ MINT NOW</button>
+      <div id="statusMsg">Select a card and connect wallet</div>
+      <div id="resultArea"></div>
+      <div id="fallbackBox">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:7px">Wallet doesn't support programmatic inscribe — copy JSON and use Yours Wallet directly.</div>
+        <textarea id="fallbackText" readonly></textarea>
+        <button class="btn" id="copyBtn" style="margin-top:8px">⎘ Copy JSON</button>
+      </div>
+    </div>
+
+    <div style="display:none" id="jsonView"></div>
+
+  </div>
+</div>
+
+<script>
+const PLATFORM_WALLET = '1r1rJXu5znptbcSKYuFW74eDZ3zJtsAwb';
+const PLATFORM_PCT = 10, ARTIST_PCT = 70, HOLDER_PCT = 20;
+const COLLECTION = 'ordinal-gif-legacy-edition';
+const API_BASE   = 'https://ordinals.gorillapool.io/content/';
+
+const BASE_ORDINALS = [
+  '704a7653a4d8c4d7bf356e1d2aeb0f0349b91c7a34c6b7eee4b4b0f5ae054a33',
+  '2056d7e53ca9eef2526cca04dc84695e195ab23f9edb8e58ae94a296a04f2f4b',
+  '19a1e5047dcb0b91991007863b9112e121e374f2e24710bd7d06571706cb5182',
+  '7def583d3dad15f9343f3189c7a8837a13e7615d6310453cf6268803b3704342',
+  '88ef3f60165d06c5ef5810567d754714eeb4ff7039763b5b2af39e2a17903d22',
+  '93f79b45ac8f5d1ef218bb67426aefe53458081010119a620a7bc77f220c74d3',
+  'dc70aed2f7fc88695d100846b3f6e6273f82fc51c9e64b69b4ce59f5f07bd243',
+  'd6dc7d95528657302d7fb1473002358323987dc468f833f53a34d0276c24b2d4'
+];
+
+// Update status to 'available' or 'minted' as the collection evolves
+const CARDS = Array.from({length:16},(_,i)=>({
+  num: i+1,
+  status: i===0 ? 'available' : 'coming',
+  pieceId: `legacy-${String(i+1).padStart(3,'0')}`
+}));
+
+let connected=false, bsvAddress='', ordAddress='';
+let selectedCard=CARDS[0], previewFrame=0, previewTimer=null, isFading=false;
+
+const $ = id => document.getElementById(id);
+const walletNotice=$('walletNotice'), connectBtn=$('connectBtn');
+const bsvAddrEl=$('bsvAddrEl'), ordAddrEl=$('ordAddrEl'), dArtist=$('dArtist');
+const dPiece=$('dPiece'), dEdition=$('dEdition');
+const mintBtn=$('mintBtn'), statusMsg=$('statusMsg'), resultArea=$('resultArea');
+const jsonView=$('jsonView'), fallbackBox=$('fallbackBox'), fallbackText=$('fallbackText'), copyBtn=$('copyBtn');
+const previewImg=$('previewImg'), previewNum=$('previewNum'), collGrid=$('collectionGrid');
+
+function init() {
+  if (!window.yours) { walletNotice.style.display='block'; walletNotice.textContent='⚠ Install Yours Wallet to mint'; connectBtn.disabled=true; }
+  buildGrid();
+  selectCard(CARDS[0]);
+  startPreview();
+  updateJSON();
+}
+
+function buildGrid() {
+  // Stagger each card's animation start so they don't all pulse together
+  CARDS.forEach((card, i) => {
+    const el = document.createElement('div');
+    el.className = 'mint-card ' + card.status;
+    el.dataset.num = card.num;
+    const labels = {available:'MINT NOW', minted:'MINTED', coming:'COMING SOON'};
+
+    el.innerHTML = `
+      <div class="mc-img">
+        <img class="mc-frame" src="${API_BASE}${BASE_ORDINALS[0]}_0" alt="#${card.num}" />
+        <div class="mc-glass"></div>
+        <div class="mc-label">
+          <span class="mc-emoji">🌈</span>
+          <span class="mc-cardnum">#${card.num}</span>
+        </div>
+        <div class="mc-strip"></div>
+      </div>
+      <div class="mc-overlay">🔒</div>
+      <div class="mc-info">
+        <div class="mc-num">#${String(card.num).padStart(2,'0')} / 16</div>
+        <div class="mc-status ${card.status}">${labels[card.status]}</div>
+      </div>`;
+
+    if (card.status==='available') el.addEventListener('click', ()=>selectCard(card));
+    collGrid.appendChild(el);
+
+    // Start independent animation per card with staggered offset
+    animateCard(el, i);
+  });
+}
+
+// Each mini card cycles through frames independently at a gentle pace
+function animateCard(cardEl, offset) {
+  const imgEl = cardEl.querySelector('.mc-frame');
+  if (!imgEl) return;
+  let frame = offset % BASE_ORDINALS.length;
+  let fading = false;
+  const interval = 2200 + (offset * 180); // slight variation per card
+
+  // Stagger start time so cards don't all change simultaneously
+  setTimeout(() => {
+    setInterval(() => {
+      if (fading) return;
+      fading = true;
+      imgEl.classList.add('fading');
+      setTimeout(() => {
+        frame = (frame + 1) % BASE_ORDINALS.length;
+        imgEl.src = API_BASE + BASE_ORDINALS[frame] + '_0';
+        imgEl.classList.remove('fading');
+        fading = false;
+      }, 1200);
+    }, interval);
+  }, offset * 320); // stagger start by 320ms per card
+}
+
+function selectCard(card) {
+  selectedCard = card;
+  document.querySelectorAll('.mint-card').forEach(el => el.classList.toggle('selected', +el.dataset.num===card.num));
+  dPiece.textContent   = card.pieceId;
+  dEdition.textContent = `${card.num} of 16`;
+  previewNum.textContent = `CARD #${card.num} OF 16`;
+  if (card.status==='available') { mintBtn.disabled=!connected; statusMsg.textContent=connected?'Ready to mint':'Connect wallet to mint'; }
+  else if (card.status==='minted') { mintBtn.disabled=true; statusMsg.textContent='Already minted'; }
+  else { mintBtn.disabled=true; statusMsg.textContent='Not yet available'; }
+  updateJSON();
+}
+
+function startPreview() {
+  previewImg.src = API_BASE + BASE_ORDINALS[0] + '_0';
+  previewTimer = setInterval(()=>{
+    if (isFading) return;
+    isFading = true;
+    previewImg.classList.add('fading');
+    setTimeout(()=>{
+      previewFrame = (previewFrame+1) % BASE_ORDINALS.length;
+      previewImg.src = API_BASE + BASE_ORDINALS[previewFrame] + '_0';
+      previewImg.classList.remove('fading');
+      isFading = false;
+    }, 1400);
+  }, 2800);
+}
+
+function buildInscription() {
+  return {
+    p:'ord', collection:COLLECTION, piece_id:selectedCard.pieceId,
+    edition:`${selectedCard.num}/16`, artist:bsvAddress||'', ord_address:ordAddress||'',
+    base_ordinals:BASE_ORDINALS.slice(),
+    revenue_share:{artist_pct:ARTIST_PCT, holder_pool_pct:HOLDER_PCT, platform_pct:PLATFORM_PCT, platform_wallet:PLATFORM_WALLET},
+    platform:'splash', version:'1.0'
+  };
+}
+
+function highlight(obj) {
+  return JSON.stringify(obj,null,2)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, m=>{
+      if(/^"/.test(m)) return/:$/.test(m)?`<span class="jk">${m}</span>`:`<span class="js">${m}</span>`;
+      return `<span class="jn">${m}</span>`;
+    });
+}
+function updateJSON() { jsonView.innerHTML = highlight(buildInscription()); }
+
+connectBtn.addEventListener('click', async ()=>{
+  if (!window.yours) { walletNotice.style.display='block'; return; }
+  connectBtn.disabled=true; connectBtn.textContent='...'; resultArea.innerHTML='';
+  try {
+    await window.yours.connect();
+    let addrs={};
+    if (typeof window.yours.getAddresses==='function') addrs=await window.yours.getAddresses();
+    bsvAddress=addrs.bsvAddress||addrs.bsv||addrs.address||'';
+    ordAddress=addrs.ordAddress||addrs.ord||'';
+    if (!bsvAddress) {
+      const res=await window.yours.connect();
+      if (typeof res==='string') bsvAddress=res;
+      else if (res?.bsvAddress){bsvAddress=res.bsvAddress;ordAddress=res.ordAddress||'';}
+      else if (Array.isArray(res)) bsvAddress=res[0]||'';
+    }
+    if (!bsvAddress) throw new Error('Could not read BSV address.');
+    bsvAddrEl.textContent=bsvAddress; ordAddrEl.textContent=ordAddress||'(same as BSV)'; dArtist.textContent=bsvAddress;
+    connected=true; connectBtn.textContent='✓ Connected'; walletNotice.style.display='none';
+    if (selectedCard.status==='available'){mintBtn.disabled=false; statusMsg.textContent='Ready to mint';}
+    updateJSON();
+  } catch(err){
+    connectBtn.disabled=false; connectBtn.textContent='⬡ Connect';
+    resultArea.innerHTML=`<span class="result-error">${err.message||err}</span>`;
+  }
+});
+
+mintBtn.addEventListener('click', async ()=>{
+  resultArea.innerHTML=''; fallbackBox.style.display='none';
+  if (!window.yours){resultArea.innerHTML='<span class="result-error">Yours Wallet not installed.</span>';return;}
+  if (!connected){resultArea.innerHTML='<span class="result-error">Connect wallet first.</span>';return;}
+  if (selectedCard.status!=='available'){resultArea.innerHTML='<span class="result-error">Card not available.</span>';return;}
+  const jsonStr=JSON.stringify(buildInscription());
+  mintBtn.disabled=true; mintBtn.textContent='... Inscribing'; statusMsg.textContent='Waiting for wallet approval...';
+  try {
+    let txid=null;
+    if (typeof window.yours.inscribe==='function') {
+      const inscription = buildInscription();
+      // Yours Wallet requires base64-encoded data, an array, and MAP metadata
+      const base64Data = btoa(unescape(encodeURIComponent(JSON.stringify(inscription))));
+      const inscriptions = [{
+        address: ordAddress || bsvAddress,
+        base64Data: base64Data,
+        mimeType: 'application/json',
+        map: {
+          app: 'splash',
+          type: 'ord',
+          name: `Rainbow Legends #${selectedCard.num}`,
+          collection: COLLECTION,
+          piece_id: selectedCard.pieceId,
+          edition: `${selectedCard.num}/16`,
+          rarity: selectedCard.rarity || 'common'
+        }
+      }];
+      const res = await window.yours.inscribe(inscriptions);
+      txid = extractTxid(res);
+    } else {
+      fallbackBox.style.display='block'; fallbackText.value=jsonStr;
+      resultArea.innerHTML='<span class="result-error">Wallet does not support programmatic inscribe. Copy JSON below.</span>';
+      statusMsg.textContent='Manual fallback'; mintBtn.disabled=false; mintBtn.textContent='⬡ MINT NOW'; return;
+    }
+    if (!txid){
+      resultArea.innerHTML='<span class="result-error">No TXID returned — check wallet history.</span>';
+      statusMsg.textContent='Done (no txid)';
+    } else {
+      statusMsg.textContent='Minted ✓';
+      resultArea.innerHTML=`<div class="result-success" style="margin-bottom:7px">✓ Inscribed on BSV mainnet</div>
+        <div style="margin-bottom:5px">TXID: <a href="https://whatsonchain.com/tx/${txid}" target="_blank">${txid}</a></div>
+        <div><a href="https://1sat.market/inscription/${txid}" target="_blank">→ View on 1sat.market</a></div>`;
+      const el=collGrid.querySelector(`[data-num="${selectedCard.num}"]`);
+      if(el){el.classList.remove('available','selected');el.classList.add('minted');el.querySelector('.mc-status').className='mc-status minted';el.querySelector('.mc-status').textContent='MINTED';el.querySelector('.mc-overlay').style.display='flex';}
+    }
+  } catch(err){
+    statusMsg.textContent='Error';
+    resultArea.innerHTML=`<span class="result-error">Mint failed: ${err.message||err}</span>`;
+  } finally{mintBtn.disabled=false;mintBtn.textContent='⬡ MINT NOW';}
+});
+
+function extractTxid(res){
+  if(!res)return null;
+  if(typeof res==='string'&&res.length===64)return res;
+  // Yours Wallet returns { txid, rawtx }
+  if(res.txid)return res.txid;
+  return res.tx||res.transactionId||res.txId||(res.id?.length===64?res.id:null);
+}
+
+copyBtn.addEventListener('click', async ()=>{
+  try{await navigator.clipboard.writeText(fallbackText.value);copyBtn.textContent='✓ Copied';setTimeout(()=>copyBtn.textContent='⎘ Copy JSON',1800);}
+  catch{copyBtn.textContent='Copy failed';}
+});
+
+window.addEventListener('load', init);
+</script>
+</body>
+</html>
