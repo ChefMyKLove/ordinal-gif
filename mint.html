@@ -362,6 +362,7 @@
         <div class="preview-sub">ANIMATED SERIES</div>
         <div class="preview-badge">LEGENDARY EDITION</div>
         <div class="preview-num" id="previewNum">TEST MINT</div>
+        <div id="debugBadge" style="font-size:9px;color:#0f0;letter-spacing:1px;font-family:monospace;background:rgba(0,255,0,0.08);border:1px solid rgba(0,255,0,0.25);border-radius:4px;padding:3px 8px;margin-top:2px;text-align:center;max-width:280px;word-break:break-all">— debug —</div>
       </div>
       <div class="preview-strip"></div>
     </div>
@@ -468,11 +469,90 @@ const BASE_ORDINALS = [
 ];
 
 // Update status to 'available' or 'minted' as the collection evolves
-const CARDS = Array.from({length:16},(_,i)=>({
-  num: i+1,
-  status: i===0 ? 'available' : 'coming',
-  pieceId: i===0 ? 'test-001' : `legacy-${String(i+1).padStart(3,'0')}`
-}));
+const CARD_SETS = {
+  A: {
+    file: 'index.html',
+    ordinals: [
+      '8f966e873f5afd0a8712c83207d6d43ffaba7eabfe5c36dbdd6d702102f3fb8a',
+      '7e64760635f1526de060b327d11ca303c71fa53f630d0635694117f42c723d23',
+      '71243868d8a334ac2df558e017e59bcf5a9c3042195ae0ece8852c6e0682f37a',
+      '19a1e5047dcb0b91991007863b9112e121e374f2e24710bd7d06571706cb5182',
+      '93f79b45ac8f5d1ef218bb67426aefe53458081010119a620a7bc77f220c74d3',
+      '3e3b8082610574a01eeefedbceb8da0b29742cc4358392c9ebe7372b06171cb4',
+      '78e6ca0d142042a368b7bd20080c2bc224d6233a944a2d8dab15763589ee4346',
+      '0874b7ace03c44299b0a0e4f32631b30c74e84ed6200fa97408685751d9ff223'
+    ]
+  },
+  B: {
+    file: 'index-b.html',
+    ordinals: [
+      '78e6ca0d142042a368b7bd20080c2bc224d6233a944a2d8dab15763589ee4346',
+      '50184e4be6267bc2c00ce72efe51cafad535dfea05b25232fef64dd4367369e2',
+      'e681e0e13d14ab786884358330e8e74858758562208411f0416ff77c68bda4ee',
+      'e75c7f265941dde250f1cec7d4f55e4d6984b72e757a57e8ca9de088b383f48a',
+      '0874b7ace03c44299b0a0e4f32631b30c74e84ed6200fa97408685751d9ff223',
+      '1a6cb972cb0cd30fa8a30ec63b550f11719add091b6bcc54f77730c58cbf247c',
+      'a2a5c43d25471df04c210a8c1083ec9f80a6d72dd9f0df0cb6bb76a4fe4b27bb',
+      'ee4ae453040c5761f5b5a332bb97bc92a37fdcb3d62b101c960da87ec28d0fa6'
+    ]
+  },
+  C: {
+    file: 'index-c.html',
+    ordinals: [
+      '50184e4be6267bc2c00ce72efe51cafad535dfea05b25232fef64dd4367369e2',
+      'e681e0e13d14ab786884358330e8e74858758562208411f0416ff77c68bda4ee',
+      'e75c7f265941dde250f1cec7d4f55e4d6984b72e757a57e8ca9de088b383f48a',
+      '1a6cb972cb0cd30fa8a30ec63b550f11719add091b6bcc54f77730c58cbf247c',
+      'a2a5c43d25471df04c210a8c1083ec9f80a6d72dd9f0df0cb6bb76a4fe4b27bb',
+      'ee4ae453040c5761f5b5a332bb97bc92a37fdcb3d62b101c960da87ec28d0fa6',
+      '19a1e5047dcb0b91991007863b9112e121e374f2e24710bd7d06571706cb5182',
+      '93f79b45ac8f5d1ef218bb67426aefe53458081010119a620a7bc77f220c74d3'
+    ]
+  },
+  D: {
+    file: 'index-d.html',
+    ordinals: [
+      '3e3b8082610574a01eeefedbceb8da0b29742cc4358392c9ebe7372b06171cb4',
+      '7e64760635f1526de060b327d11ca303c71fa53f630d0635694117f42c723d23',
+      '71243868d8a334ac2df558e017e59bcf5a9c3042195ae0ece8852c6e0682f37a',
+      '8f966e873f5afd0a8712c83207d6d43ffaba7eabfe5c36dbdd6d702102f3fb8a',
+      '1a6cb972cb0cd30fa8a30ec63b550f11719add091b6bcc54f77730c58cbf247c',
+      'a2a5c43d25471df04c210a8c1083ec9f80a6d72dd9f0df0cb6bb76a4fe4b27bb',
+      'ee4ae453040c5761f5b5a332bb97bc92a37fdcb3d62b101c960da87ec28d0fa6',
+      'e75c7f265941dde250f1cec7d4f55e4d6984b72e757a57e8ca9de088b383f48a'
+    ]
+  },
+  E: {
+    file: 'index-e.html',
+    ordinals: [
+      'e681e0e13d14ab786884358330e8e74858758562208411f0416ff77c68bda4ee',
+      '50184e4be6267bc2c00ce72efe51cafad535dfea05b25232fef64dd4367369e2',
+      '3e3b8082610574a01eeefedbceb8da0b29742cc4358392c9ebe7372b06171cb4',
+      '8f966e873f5afd0a8712c83207d6d43ffaba7eabfe5c36dbdd6d702102f3fb8a',
+      '71243868d8a334ac2df558e017e59bcf5a9c3042195ae0ece8852c6e0682f37a',
+      'ee4ae453040c5761f5b5a332bb97bc92a37fdcb3d62b101c960da87ec28d0fa6',
+      'a2a5c43d25471df04c210a8c1083ec9f80a6d72dd9f0df0cb6bb76a4fe4b27bb',
+      '93f79b45ac8f5d1ef218bb67426aefe53458081010119a620a7bc77f220c74d3'
+    ]
+  }
+};
+
+// 5 available cards scattered across the grid — rest coming soon
+const AVAILABLE = { 0:'A', 3:'B', 7:'C', 11:'D', 15:'E' };
+const SET_KEYS = ['A','B','C','D','E'];
+const CARDS = Array.from({length:16}, (_,i) => {
+  const setKey = AVAILABLE[i];
+  if (setKey) return {
+    num: i+1, status:'available',
+    pieceId: `test-00${Object.keys(AVAILABLE).indexOf(String(i))+1}`,
+    set: CARD_SETS[setKey], rarity:'common'
+  };
+  return {
+    num: i+1, status:'coming',
+    pieceId: `legacy-${String(i+1).padStart(3,'0')}`,
+    set: CARD_SETS[SET_KEYS[i % 5]], rarity:'common'
+  };
+});
 
 let connected=false, bsvAddress='', ordAddress='';
 let selectedCard=CARDS[0], previewFrame=0, previewTimer=null, isFading=false;
@@ -488,23 +568,23 @@ const previewImg=$('previewImg'), previewNum=$('previewNum'), collGrid=$('collec
 function init() {
   if (!window.yours) { walletNotice.style.display='block'; walletNotice.textContent='⚠ Install Yours Wallet to mint'; connectBtn.disabled=true; }
   buildGrid();
-  selectCard(CARDS[0]);
-  startPreview();
+  selectCard(CARDS[0]); // selectCard calls startPreview with correct ordinals
   initPreviewControls();
   updateJSON();
 }
 
 function buildGrid() {
-  // Stagger each card's animation start so they don't all pulse together
   CARDS.forEach((card, i) => {
     const el = document.createElement('div');
     el.className = 'mint-card ' + card.status;
     el.dataset.num = card.num;
     const labels = {available:'MINT NOW', minted:'MINTED', coming:'COMING SOON'};
+    // Each card shows its own first ordinal (or shared pool for coming cards)
+    const thumb = API_BASE + card.set.ordinals[0] + '_0';
 
     el.innerHTML = `
       <div class="mc-img">
-        <img class="mc-frame" src="${API_BASE}${BASE_ORDINALS[0]}_0" alt="#${card.num}" />
+        <img class="mc-frame" src="${thumb}" alt="#${card.num}" />
         <div class="mc-glass"></div>
         <div class="mc-label">
           <span class="mc-emoji">🌈</span>
@@ -518,36 +598,63 @@ function buildGrid() {
         <div class="mc-status ${card.status}">${labels[card.status]}</div>
       </div>`;
 
-    if (card.status==='available') el.addEventListener('click', ()=>selectCard(card));
-    collGrid.appendChild(el);
+    // Available cards: click to select + load preview
+    if (card.status === 'available') {
+      el.addEventListener('click', () => selectCard(card));
+    }
+    // Coming soon cards: click to show "coming soon" in status area
+    if (card.status === 'coming') {
+      el.style.cursor = 'pointer';
+      el.addEventListener('click', () => {
+        document.querySelectorAll('.mint-card').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        statusMsg.textContent = 'Coming soon — stay tuned 🌈';
+        mintBtn.disabled = true;
+        mintBtn.textContent = 'COMING SOON';
+        resultArea.innerHTML = '';
+        setTimeout(() => { mintBtn.textContent = '⬡ MINT NOW'; }, 2000);
+      });
+    }
 
-    // Start independent animation per card with staggered offset
-    animateCard(el, i);
+    collGrid.appendChild(el);
+    animateCard(el, i, card.set.ordinals);
   });
 }
 
+// Global grid speed multiplier — 1.0 = default, 0.5 = half speed, 2.0 = double
+let gridSpeedMult = 1.0;
+
 // Each mini card cycles through frames independently at a gentle pace
-function animateCard(cardEl, offset) {
+function animateCard(cardEl, offset, ordinals) {
+  const frames = ordinals || BASE_ORDINALS;
   const imgEl = cardEl.querySelector('.mc-frame');
   if (!imgEl) return;
-  let frame = offset % BASE_ORDINALS.length;
+  let frame = offset % frames.length;
   let fading = false;
-  const interval = 2200 + (offset * 180); // slight variation per card
+  const baseInterval = 2200 + (offset * 180);
 
-  // Stagger start time so cards don't all change simultaneously
-  setTimeout(() => {
-    setInterval(() => {
-      if (fading) return;
-      fading = true;
-      imgEl.classList.add('fading');
-      setTimeout(() => {
-        frame = (frame + 1) % BASE_ORDINALS.length;
-        imgEl.src = API_BASE + BASE_ORDINALS[frame] + '_0';
-        imgEl.classList.remove('fading');
-        fading = false;
-      }, 1200);
+  function tick() {
+    const interval = baseInterval / gridSpeedMult;
+    setTimeout(() => {
+      if (!fading) {
+        fading = true;
+        const fadeDur = Math.min(interval * 0.4, 1200 / gridSpeedMult);
+        imgEl.style.transition = `opacity ${fadeDur}ms ease-in-out`;
+        imgEl.style.opacity = '0';
+        setTimeout(() => {
+          frame = (frame + 1) % frames.length;
+          imgEl.src = API_BASE + frames[frame] + '_0';
+          imgEl.style.opacity = '1';
+          fading = false;
+          tick();
+        }, fadeDur);
+      } else {
+        tick();
+      }
     }, interval);
-  }, offset * 320); // stagger start by 320ms per card
+  }
+
+  setTimeout(tick, offset * 320);
 }
 
 function selectCard(card) {
@@ -555,31 +662,48 @@ function selectCard(card) {
   document.querySelectorAll('.mint-card').forEach(el => el.classList.toggle('selected', +el.dataset.num===card.num));
   dPiece.textContent   = card.pieceId;
   dEdition.textContent = `${card.num} of 16`;
-  previewNum.textContent = card.num === 1 ? 'TEST MINT' : `CARD #${card.num} OF 16`;
+  previewNum.textContent = `CARD #${card.num} OF 16`;
   if (card.status==='available') { mintBtn.disabled=!connected; statusMsg.textContent=connected?'Ready to mint':'Connect wallet to mint'; }
   else if (card.status==='minted') { mintBtn.disabled=true; statusMsg.textContent='Already minted'; }
   else { mintBtn.disabled=true; statusMsg.textContent='Not yet available'; }
+
+  // DEBUG
+  console.log(`%c[selectCard] Card #${card.num} | Set file: ${card.set.file} | f0: ${card.set.ordinals[0].slice(0,8)}...`, 'color:#0f0;font-weight:bold');
+  const badge = document.getElementById('debugBadge');
+  if (badge) badge.textContent = `SET: ${card.set.file} | f0: ${card.set.ordinals[0].slice(0,8)}...`;
+
+  previewFrame = 0;
+  startPreview(card.set.ordinals);
   updateJSON();
 }
 
 let previewSpeed = 2800, previewFade = 400, previewPaused = false;
 
-function startPreview() {
+function startPreview(ordinals) {
+  const frames = ordinals || (selectedCard && selectedCard.set ? selectedCard.set.ordinals : BASE_ORDINALS);
+  console.log(`%c[startPreview] Using ${frames.length} frames | f0: ${frames[0].slice(0,8)}...`, 'color:#8af');
   if (previewTimer) { clearInterval(previewTimer); previewTimer = null; }
   isFading = false;
-  previewImg.classList.remove('fading');
   previewImg.style.transition = `opacity ${previewFade}ms ease-in-out`;
-  previewImg.src = API_BASE + BASE_ORDINALS[previewFrame] + '_0';
+  previewImg.src = API_BASE + frames[previewFrame] + '_0';
+
+  // Log and badge the initial frame
+  const logFrame = (idx) => {
+    const id = frames[idx];
+    console.log(`%c[frame ${idx}] ${id}`, idx === 4 ? 'color:#ff0;font-weight:bold' : 'color:#aaa');
+    const badge = document.getElementById('debugBadge');
+    if (badge) badge.textContent = `f${idx}: ${id.slice(0,12)}...`;
+  };
+  logFrame(previewFrame);
 
   previewTimer = setInterval(()=>{
     if (previewPaused) return;
-    // Fade out
     previewImg.style.opacity = '0';
     setTimeout(()=>{
-      previewFrame = (previewFrame+1) % BASE_ORDINALS.length;
-      previewImg.src = API_BASE + BASE_ORDINALS[previewFrame] + '_0';
-      // Fade in
+      previewFrame = (previewFrame+1) % frames.length;
+      previewImg.src = API_BASE + frames[previewFrame] + '_0';
       previewImg.style.opacity = '1';
+      logFrame(previewFrame);
     }, previewFade);
   }, previewSpeed);
 }
@@ -685,6 +809,8 @@ function initPreviewControls() {
 
   function onSpdUpdate() {
     previewSpeed = getSpdMs();
+    // Sync grid cards — default speed is ~2200ms, we scale relative to that
+    gridSpeedMult = 2200 / previewSpeed;
     const maxFade = Math.floor(previewSpeed * 0.4);
     fadeSlider.max = maxFade;
     if (previewFade > maxFade) {
@@ -695,7 +821,7 @@ function initPreviewControls() {
       fadeCtrl.setThumbFromValue(maxFade);
     }
     spdVal.textContent = (previewSpeed/1000).toFixed(1) + 's';
-    startPreview();
+    startPreview(selectedCard && selectedCard.set ? selectedCard.set.ordinals : null);
   }
 
   function onFadeUpdate() {
@@ -774,13 +900,14 @@ mintBtn.addEventListener('click', async ()=>{
 
   try {
     // ── STEP 1: Load index.html content ─────────────────────────
+    const indexFile = selectedCard.set ? selectedCard.set.file : 'index.html';
     let htmlContent;
     try {
-      const resp = await fetch('index.html');
+      const resp = await fetch(indexFile);
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
       htmlContent = await resp.text();
     } catch(fetchErr) {
-      throw new Error('Could not load index.html: ' + fetchErr.message + '. Make sure mint.html and index.html are in the same folder.');
+      throw new Error(`Could not load ${indexFile}: ${fetchErr.message}. Make sure all index files are in the same folder.`);
     }
 
     // ── STEP 2: BSV PAYMENT (3-WAY SPLIT) ───────────────────────
