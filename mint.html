@@ -64,7 +64,7 @@
     }
 
     /* ── CARD PREVIEW ── */
-    .left-col { position: sticky; top: 28px; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+    .left-col { position: sticky; top: 28px; display: flex; flex-direction: column; align-items: center; gap: 18px; width: 290px; }
 
     .preview-card {
       width: 290px; height: 440px;
@@ -125,7 +125,7 @@
     .preview-strip { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--r1), var(--r2), var(--r3), var(--r4), var(--r5), var(--r6), var(--r7)); }
 
     .preview-controls {
-      margin-top: 10px;
+      width: 100%;
       background: rgba(255,255,255,0.03);
       border: 1px solid var(--border);
       border-radius: 8px;
@@ -146,14 +146,64 @@
     }
     .pc-btn:hover { background: rgba(255,255,255,0.1); }
     .pc-btn.paused { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.4); }
-    .pc-row input[type=range] {
-      flex: 1; height: 4px; -webkit-appearance: none;
-      background: linear-gradient(to right, rgba(255,255,255,0.4), rgba(255,255,255,0.1));
-      border-radius: 2px; outline: none;
+
+    /* Hide native range — replaced by custom slider */
+    .pc-row input[type=range] { display: none; }
+
+    /* ── CUSTOM RAINBOW SLIDER ── */
+    .rb-slider {
+      flex: 1;
+      position: relative;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      min-width: 0;
     }
-    .pc-row input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 12px; height: 12px;
-      border-radius: 50%; background: #fff; cursor: pointer;
+    .rb-track {
+      position: absolute;
+      left: 10px; right: 10px;
+      height: 6px;
+      border-radius: 3px;
+      background: linear-gradient(90deg,
+        #ff0000 0%, #ff6600 14%, #ffee00 28%,
+        #00cc44 42%, #00ccff 57%, #6633ff 71%,
+        #cc00ff 85%, #ff0066 100%);
+      box-shadow: 0 0 8px rgba(180,100,255,0.3);
+    }
+    .rb-thumb {
+      position: absolute;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      transform: translateX(-50%);
+      cursor: grab;
+      background: rgba(255,255,255,0.15);
+      -webkit-backdrop-filter: blur(8px) saturate(300%) brightness(1.4);
+      backdrop-filter: blur(8px) saturate(300%) brightness(1.4);
+      border: 1.5px solid rgba(255,255,255,0.7);
+      box-shadow:
+        0 2px 10px rgba(0,0,0,0.5),
+        inset 0 1px 0 rgba(255,255,255,0.8),
+        inset 0 -1px 0 rgba(255,255,255,0.15);
+      transition: box-shadow 0.15s;
+      z-index: 2;
+    }
+    .rb-thumb:hover {
+      box-shadow:
+        0 2px 16px rgba(180,100,255,0.6),
+        inset 0 1px 0 rgba(255,255,255,0.9),
+        0 0 0 3px rgba(255,255,255,0.1);
+    }
+    .rb-thumb.dragging {
+      cursor: grabbing;
+      transform: translateX(-50%) scale(1.2);
+    }
+    .rb-thumb::before {
+      content: '';
+      position: absolute;
+      top: 3px; left: 4px; right: 4px; height: 5px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.65), transparent);
     }
 
     /* ── WALLET ── */
@@ -320,14 +370,22 @@
     <div class="preview-controls">
       <div class="pc-row">
         <span class="pc-label">SPD</span>
-        <input type="range" id="spdSlider" min="500" max="6000" value="2800" step="100">
-        <span class="pc-val" id="spdVal">1×</span>
+        <input type="range" id="spdSlider" min="200" max="5000" value="2800" step="100">
+        <div class="rb-slider" id="spdTrackEl">
+          <div class="rb-track"></div>
+          <div class="rb-thumb" id="spdThumb"></div>
+        </div>
+        <span class="pc-val" id="spdVal">0.8s</span>
         <button class="pc-btn" id="pauseBtn">⏸</button>
       </div>
       <div class="pc-row">
         <span class="pc-label">FADE</span>
-        <input type="range" id="fadeSlider" min="100" max="2000" value="1400" step="100">
-        <span class="pc-val" id="fadeVal">1.4s</span>
+        <input type="range" id="fadeSlider" min="50" max="1120" value="400" step="50">
+        <div class="rb-slider" id="fadeTrackEl">
+          <div class="rb-track"></div>
+          <div class="rb-thumb" id="fadeThumb"></div>
+        </div>
+        <span class="pc-val" id="fadeVal">0.4s</span>
       </div>
     </div>
 
@@ -526,36 +584,138 @@ function startPreview() {
   }, previewSpeed);
 }
 
+// ── CUSTOM RAINBOW SLIDER DRAG LOGIC ────────────────────────
+function initCustomSlider(trackEl, thumbEl, nativeInput, onUpdate) {
+  const INSET = 10; // matches left/right on .rb-track
+  function pctFromEvent(e) {
+    const rect = trackEl.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const usable = rect.width - INSET * 2;
+    return Math.max(0, Math.min(1, (clientX - rect.left - INSET) / usable));
+  }
+  function pctToValue(pct) {
+    const min = parseFloat(nativeInput.min);
+    const max = parseFloat(nativeInput.max);
+    const step = parseFloat(nativeInput.step) || 1;
+    return Math.round((min + pct * (max - min)) / step) * step;
+  }
+  function setThumbFromValue(val) {
+    const min = parseFloat(nativeInput.min);
+    const max = parseFloat(nativeInput.max);
+    const pct = (val - min) / (max - min);
+    const rect = trackEl.getBoundingClientRect();
+    const usable = rect.width - INSET * 2;
+    thumbEl.style.left = (INSET + pct * usable) + 'px';
+    // Stops match CSS gradient: 0% 14% 28% 42% 57% 71% 85% 100%
+    const stops = [
+      { p: 0.00, c: [255,  0,  0] },
+      { p: 0.14, c: [255,102,  0] },
+      { p: 0.28, c: [255,238,  0] },
+      { p: 0.42, c: [  0,204, 68] },
+      { p: 0.57, c: [  0,204,255] },
+      { p: 0.71, c: [102, 51,255] },
+      { p: 0.85, c: [204,  0,255] },
+      { p: 1.00, c: [255,  0,102] },
+    ];
+    let lo = stops[0], hi = stops[1];
+    for (let i = 0; i < stops.length - 1; i++) {
+      if (pct >= stops[i].p && pct <= stops[i+1].p) { lo = stops[i]; hi = stops[i+1]; break; }
+    }
+    const range = hi.p - lo.p || 0.001;
+    const t = (pct - lo.p) / range;
+    const r = Math.round(lo.c[0]+(hi.c[0]-lo.c[0])*t);
+    const g = Math.round(lo.c[1]+(hi.c[1]-lo.c[1])*t);
+    const b = Math.round(lo.c[2]+(hi.c[2]-lo.c[2])*t);
+    thumbEl.style.webkitBackdropFilter = `blur(6px) saturate(200%) brightness(1.3)`;
+    thumbEl.style.backdropFilter        = `blur(6px) saturate(200%) brightness(1.3)`;
+    thumbEl.style.background = `radial-gradient(circle at 40% 35%, rgba(255,255,255,0.55), rgba(${r},${g},${b},0.45) 60%, rgba(${r},${g},${b},0.7))`;
+    thumbEl.style.borderColor = `rgba(${r},${g},${b},0.95)`;
+    thumbEl.style.boxShadow = `0 2px 10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.7), 0 0 10px rgba(${r},${g},${b},0.6)`;
+  }
+
+  // Defer init until layout is complete
+  requestAnimationFrame(() => setThumbFromValue(parseFloat(nativeInput.value)));
+
+  let dragging = false;
+  function onMove(e) {
+    if (!dragging) return;
+    e.preventDefault();
+    const pct = pctFromEvent(e);
+    const val = pctToValue(pct);
+    nativeInput.value = val;
+    setThumbFromValue(val);
+    onUpdate();
+  }
+  function onUp() {
+    dragging = false;
+    thumbEl.classList.remove('dragging');
+    window.removeEventListener('mousemove', onMove);
+    window.removeEventListener('mouseup', onUp);
+    window.removeEventListener('touchmove', onMove);
+    window.removeEventListener('touchend', onUp);
+  }
+  function onDown(e) {
+    dragging = true;
+    thumbEl.classList.add('dragging');
+    onMove(e);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    window.addEventListener('touchmove', onMove, { passive: false });
+    window.addEventListener('touchend', onUp);
+  }
+  thumbEl.addEventListener('mousedown', onDown);
+  thumbEl.addEventListener('touchstart', onDown, { passive: false });
+  trackEl.addEventListener('mousedown', onDown);
+  trackEl.addEventListener('touchstart', onDown, { passive: false });
+
+  // Expose setter so initPreviewControls can sync thumb when max changes
+  return { setThumbFromValue };
+}
+
 function initPreviewControls() {
   const spdSlider = $('spdSlider'), spdVal = $('spdVal');
   const fadeSlider = $('fadeSlider'), fadeVal = $('fadeVal');
   const pauseBtn = $('pauseBtn');
 
-  spdSlider.addEventListener('input', ()=>{
-    previewSpeed = parseInt(spdSlider.value);
-    // Keep fade at most 40% of speed so they never collide
-    previewFade = Math.min(previewFade, previewSpeed * 0.4);
-    fadeSlider.max = Math.floor(previewSpeed * 0.4);
-    fadeSlider.value = previewFade;
-    fadeVal.textContent = (previewFade/1000).toFixed(1)+'s';
-    const ratio = (2800/previewSpeed).toFixed(1);
-    spdVal.textContent = ratio+'×';
-    startPreview();
-  });
+  // SPD: right=fast, value inverted
+  spdSlider.min = 200; spdSlider.max = 5000; spdSlider.value = 2800; spdSlider.step = 100;
+  fadeSlider.min = 50; fadeSlider.max = 1120; fadeSlider.value = 400; fadeSlider.step = 50;
 
-  fadeSlider.addEventListener('input', ()=>{
+  const getSpdMs = () => (5000 + 200 - parseInt(spdSlider.value));
+
+  function onSpdUpdate() {
+    previewSpeed = getSpdMs();
+    const maxFade = Math.floor(previewSpeed * 0.4);
+    fadeSlider.max = maxFade;
+    if (previewFade > maxFade) {
+      previewFade = maxFade;
+      fadeSlider.value = maxFade;
+      fadeVal.textContent = (previewFade/1000).toFixed(1) + 's';
+      previewImg.style.transition = `opacity ${previewFade}ms ease-in-out`;
+      fadeCtrl.setThumbFromValue(maxFade);
+    }
+    spdVal.textContent = (previewSpeed/1000).toFixed(1) + 's';
+    startPreview();
+  }
+
+  function onFadeUpdate() {
     previewFade = parseInt(fadeSlider.value);
-    fadeVal.textContent = (previewFade/1000).toFixed(1)+'s';
+    fadeVal.textContent = (previewFade/1000).toFixed(1) + 's';
     previewImg.style.transition = `opacity ${previewFade}ms ease-in-out`;
-  });
+  }
+
+  const spdCtrl  = initCustomSlider($('spdTrackEl'),  $('spdThumb'),  spdSlider,  onSpdUpdate);
+  const fadeCtrl = initCustomSlider($('fadeTrackEl'), $('fadeThumb'), fadeSlider, onFadeUpdate);
+
+  // Init display values
+  spdVal.textContent  = (getSpdMs()/1000).toFixed(1) + 's';
+  fadeVal.textContent = (400/1000).toFixed(1) + 's';
 
   pauseBtn.addEventListener('click', ()=>{
     previewPaused = !previewPaused;
     pauseBtn.textContent = previewPaused ? '▶' : '⏸';
     pauseBtn.classList.toggle('paused', previewPaused);
-    if (!previewPaused) {
-      previewImg.style.opacity = '1';
-    }
+    if (!previewPaused) previewImg.style.opacity = '1';
   });
 }
 
