@@ -362,7 +362,6 @@
         <div class="preview-sub">ANIMATED SERIES</div>
         <div class="preview-badge">LEGENDARY EDITION</div>
         <div class="preview-num" id="previewNum">TEST MINT</div>
-        <div id="debugBadge" style="font-size:9px;color:#0f0;letter-spacing:1px;font-family:monospace;background:rgba(0,255,0,0.08);border:1px solid rgba(0,255,0,0.25);border-radius:4px;padding:3px 8px;margin-top:2px;text-align:center;max-width:280px;word-break:break-all">— debug —</div>
       </div>
       <div class="preview-strip"></div>
     </div>
@@ -666,12 +665,6 @@ function selectCard(card) {
   if (card.status==='available') { mintBtn.disabled=!connected; statusMsg.textContent=connected?'Ready to mint':'Connect wallet to mint'; }
   else if (card.status==='minted') { mintBtn.disabled=true; statusMsg.textContent='Already minted'; }
   else { mintBtn.disabled=true; statusMsg.textContent='Not yet available'; }
-
-  // DEBUG
-  console.log(`%c[selectCard] Card #${card.num} | Set file: ${card.set.file} | f0: ${card.set.ordinals[0].slice(0,8)}...`, 'color:#0f0;font-weight:bold');
-  const badge = document.getElementById('debugBadge');
-  if (badge) badge.textContent = `SET: ${card.set.file} | f0: ${card.set.ordinals[0].slice(0,8)}...`;
-
   previewFrame = 0;
   startPreview(card.set.ordinals);
   updateJSON();
@@ -681,20 +674,10 @@ let previewSpeed = 2800, previewFade = 400, previewPaused = false;
 
 function startPreview(ordinals) {
   const frames = ordinals || (selectedCard && selectedCard.set ? selectedCard.set.ordinals : BASE_ORDINALS);
-  console.log(`%c[startPreview] Using ${frames.length} frames | f0: ${frames[0].slice(0,8)}...`, 'color:#8af');
   if (previewTimer) { clearInterval(previewTimer); previewTimer = null; }
   isFading = false;
   previewImg.style.transition = `opacity ${previewFade}ms ease-in-out`;
   previewImg.src = API_BASE + frames[previewFrame] + '_0';
-
-  // Log and badge the initial frame
-  const logFrame = (idx) => {
-    const id = frames[idx];
-    console.log(`%c[frame ${idx}] ${id}`, idx === 4 ? 'color:#ff0;font-weight:bold' : 'color:#aaa');
-    const badge = document.getElementById('debugBadge');
-    if (badge) badge.textContent = `f${idx}: ${id.slice(0,12)}...`;
-  };
-  logFrame(previewFrame);
 
   previewTimer = setInterval(()=>{
     if (previewPaused) return;
@@ -703,11 +686,9 @@ function startPreview(ordinals) {
       previewFrame = (previewFrame+1) % frames.length;
       previewImg.src = API_BASE + frames[previewFrame] + '_0';
       previewImg.style.opacity = '1';
-      logFrame(previewFrame);
     }, previewFade);
   }, previewSpeed);
 }
-
 // ── CUSTOM RAINBOW SLIDER DRAG LOGIC ────────────────────────
 function initCustomSlider(trackEl, thumbEl, nativeInput, onUpdate) {
   const INSET = 10; // matches left/right on .rb-track
