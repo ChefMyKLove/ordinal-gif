@@ -1005,6 +1005,38 @@ mintBtn.addEventListener('click', async ()=>{
           Ordinal: <a href="https://whatsonchain.com/tx/${txid}" target="_blank" style="color:#a0a0ff">${txid}</a>
         </div>
         <div><a href="https://1sat.market/inscription/${txid}" target="_blank" style="color:#a0a0ff">→ View on 1sat.market</a></div>`;
+
+      // Seed reward_allocations in Supabase so holder can claim BSV
+      try {
+        statusMsg.textContent = 'Registering rewards...';
+        const seedResp = await fetch('https://ordinalrainbows-vol-1.vercel.app/api/seed-mint', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            inscription_id: txid,
+            nft_id: selectedCard.pieceId,
+            title: `Rainbow Legends #${selectedCard.num}`,
+            rarity: selectedCard.rarity || 'common',
+            rarity_multiplier: 1.0,
+            bsv_claimable: 0,
+            holder_pool_sats: HOLDER_SATS,
+            payment_txid: paymentTxid,
+            referenced_ordinals: selectedCard.set.ordinals
+          })
+        });
+        const seedJson = await seedResp.json();
+        if (seedResp.ok) {
+          statusMsg.textContent = 'Minted ✓ — rewards registered';
+          resultArea.innerHTML += `<div style="margin-top:6px;font-size:11px;color:#7fff7f">✓ Rewards registered — claimable on ORDINAL RAINBOWS site</div>`;
+        } else {
+          console.warn('Seed failed:', seedJson);
+          statusMsg.textContent = 'Minted ✓ — reward registration failed (manual fix needed)';
+        }
+      } catch(seedErr) {
+        console.warn('Seed error:', seedErr);
+        statusMsg.textContent = 'Minted ✓ — reward registration failed (manual fix needed)';
+      }
+
       const el = collGrid.querySelector(`[data-num="${selectedCard.num}"]`);
       if(el){
         el.classList.remove('available','selected');
