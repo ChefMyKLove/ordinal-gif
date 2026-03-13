@@ -533,12 +533,25 @@ const CARD_SETS = {
       'a2a5c43d25471df04c210a8c1083ec9f80a6d72dd9f0df0cb6bb76a4fe4b27bb',
       '93f79b45ac8f5d1ef218bb67426aefe53458081010119a620a7bc77f220c74d3'
     ]
+  },
+  F: {
+    file: 'index-f.html',
+    ordinals: [
+      '1a6cb972cb0cd30fa8a30ec63b550f11719add091b6bcc54f77730c58cbf247c',
+      '78e6ca0d142042a368b7bd20080c2bc224d6233a944a2d8dab15763589ee4346',
+      '92386fa66c0272f5b32eec44c5e3136f6c7550c622ddb1cf3fbee22d56b42bef',
+      'e681e0e13d14ab786884358330e8e74858758562208411f0416ff77c68bda4ee',
+      '50184e4be6267bc2c00ce72efe51cafad535dfea05b25232fef64dd4367369e2',
+      '93f79b45ac8f5d1ef218bb67426aefe53458081010119a620a7bc77f220c74d3',
+      '19a1e5047dcb0b91991007863b9112e121e374f2e24710bd7d06571706cb5182',
+      '7e64760635f1526de060b327d11ca303c71fa53f630d0635694117f42c723d23'
+    ]
   }
 };
 
-// 5 available cards scattered across the grid — rest coming soon
-const AVAILABLE = { 0:'A', 3:'B', 7:'C', 11:'D', 15:'E' };
-const SET_KEYS = ['A','B','C','D','E'];
+// 6 available cards scattered across the grid — rest coming soon
+const AVAILABLE = { 0:'F', 3:'B', 7:'C', 11:'D', 15:'E', 4:'A' };
+const SET_KEYS = ['A','B','C','D','E','F'];
 const CARDS = Array.from({length:16}, (_,i) => {
   const setKey = AVAILABLE[i];
   if (setKey) return {
