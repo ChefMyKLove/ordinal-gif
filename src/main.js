@@ -8,10 +8,12 @@ const COLLECTION = 'rainbow-legends'; // placeholder — rename to the real coll
 const API_BASE   = 'https://ordinals.gorillapool.io/content/';
 
 const SATOSHIS_PER_BSV = 100000000;
+// ORDINALRAINBOWS-Vol.1's backend — currently running in its own dust-level TEST_MODE (see
+// lib/pricing.js there), so these prices are small on purpose until that's flipped for launch.
+const BACKEND_BASE = 'https://ordinalrainbows.com';
 // Price is no longer a flat constant — each card has its own live bump-and-decay curve, served
-// by ORDINALRAINBOWS-Vol.1's /api/mint-price (backend currently runs in its own dust-level TEST
-// mode — see lib/pricing.js — so these numbers are small on purpose right now).
-const PRICE_API = 'http://localhost:3000/api/mint-price';
+// by the backend's /api/mint-price.
+const PRICE_API = `${BACKEND_BASE}/api/mint-price`;
 const PRICE_REFRESH_MS = 45000;
 
 function fmtPrice(sats) {
@@ -586,7 +588,7 @@ mintBtn.addEventListener('click', async ()=>{
       for (let attempt = 1; attempt <= MAX_SEED_ATTEMPTS; attempt++) {
         try {
           statusMsg.textContent = `Registering rewards... (${attempt}/${MAX_SEED_ATTEMPTS})`;
-          const seedResp = await fetch('http://localhost:3000/api/mint-complete', {
+          const seedResp = await fetch(`${BACKEND_BASE}/api/mint-complete`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: seedBody
@@ -741,7 +743,7 @@ mintRandomBtn.addEventListener('click', async () => {
     let batchOk = false;
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
       statusMsg.textContent = `Registering rewards for ${picks.length} cards... (${attempt}/${MAX_ATTEMPTS})`;
-      const resp = await fetch('http://localhost:3000/api/mint-complete-batch', {
+      const resp = await fetch(`${BACKEND_BASE}/api/mint-complete-batch`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ payment_txid: batchTxid, items: seedItems }),
       });
