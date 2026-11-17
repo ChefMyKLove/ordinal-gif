@@ -1,16 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="bg-phone-anim">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mint — Rainbow Legends · Splash</title>
+  <link rel="stylesheet" href="/css/bg-anim.css" />
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
       --bg0: #040406;
       --bg1: #0b0b10;
-      --panel: rgba(255,255,255,0.03);
+      --panel: #14101f;
       --border: rgba(255,255,255,0.06);
       --text: #e0e0e0;
       --muted: #777;
@@ -19,6 +20,7 @@
       --r4:#00c853; --r5:#00cfff; --r6:#7b51ff; --r7:#e040fb;
       --success: #4cff91;
       --error: #ff6b6b;
+      --notice: #ffcf8a;
     }
 
     body {
@@ -30,6 +32,11 @@
       line-height: 1.6;
       overflow-x: hidden;
     }
+
+    /* cloud-layer (bg-anim.css) is position:fixed + z-index:1 with mix-blend-mode:screen.
+       Non-positioned elements always paint before positioned z-index>=0 ones regardless
+       of DOM order, so without this the cloud layer silently paints over the whole page. */
+    .rainbow-bar, header, .page { position: relative; z-index: 2; }
 
     .rainbow-bar {
       height: 3px;
@@ -57,9 +64,9 @@
       display: grid;
       grid-template-columns: 300px 1fr;
       gap: 24px;
-      max-width: 1060px;
-      margin: 32px auto;
-      padding: 0 28px 60px;
+      max-width: 1420px;
+      margin: 24px auto;
+      padding: 0 28px 40px;
       align-items: start;
     }
 
@@ -122,6 +129,7 @@
       text-shadow: 0 1px 8px rgba(0,0,0,1); letter-spacing: 1px;
     }
     .preview-num { margin-top: 9px; font-size: 10px; color: rgba(255,255,255,0.38); letter-spacing: 2px; }
+    .preview-price { margin-top: 6px; font-size: 13px; font-weight: 700; color: #fff; letter-spacing: 1px; text-shadow: 0 1px 8px rgba(0,0,0,1); }
     .preview-strip { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--r1), var(--r2), var(--r3), var(--r4), var(--r5), var(--r6), var(--r7)); }
 
     .preview-controls {
@@ -209,12 +217,54 @@
     /* ── WALLET ── */
     .wallet-section {
       width: 100%; background: var(--panel);
-      border: 1px solid var(--border); border-radius: 10px; padding: 16px;
+      border: 1px solid var(--border); border-radius: 10px; padding: 18px 16px;
     }
     .section-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
-    #walletNotice  { font-size: 11px; color: var(--error); margin-bottom: 10px; display: none; }
-    .wallet-row    { display: flex; align-items: center; gap: 12px; }
-    .addr-block    { flex: 1; min-width: 0; }
+
+    /* ── disconnected invite state ── */
+    .wallet-invite { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 2px 0 16px; cursor: pointer; }
+    .wallet-ring {
+      width: 50px; height: 50px; border-radius: 50%; padding: 2px; flex-shrink: 0;
+      background: conic-gradient(var(--r1), var(--r2), var(--r3), var(--r4), var(--r5), var(--r6), var(--r7), var(--r1));
+      animation: ring-spin 7s linear infinite;
+      transition: transform 0.2s;
+    }
+    .wallet-invite:hover .wallet-ring { transform: scale(1.08); }
+    @media (prefers-reduced-motion: reduce) { .wallet-ring { animation: none; } }
+    @keyframes ring-spin { to { transform: rotate(360deg); } }
+    .wallet-ring-inner {
+      width: 100%; height: 100%; border-radius: 50%; background: var(--panel);
+      display: flex; align-items: center; justify-content: center; font-size: 20px;
+    }
+    .wallet-headline { font-size: 13px; color: #fff; letter-spacing: 0.5px; }
+    .wallet-sub { font-size: 10.5px; color: var(--muted); letter-spacing: 0.3px; max-width: 220px; }
+
+    #walletNotice {
+      font-size: 11px; color: var(--notice); line-height: 1.5; display: none;
+      margin-bottom: 12px; padding: 8px 10px; border-radius: 6px;
+      background: rgba(255,207,138,0.08); border: 1px solid rgba(255,207,138,0.18);
+    }
+
+    .wallet-row    { display: flex; flex-direction: column; gap: 10px; }
+    .btn-connect   { width: 100%; justify-content: center; padding: 11px; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; background: linear-gradient(90deg, var(--r6), var(--r5), var(--r4)); border-color: transparent; }
+    .btn-connect:hover:not(:disabled) { filter: brightness(1.12); border-color: transparent; }
+    .btn-connect.is-connected {
+      width: auto; align-self: flex-start; padding: 6px 14px 6px 10px; font-size: 10.5px;
+      background: rgba(76,255,145,0.1); border: 1px solid rgba(76,255,145,0.35); color: var(--success);
+      display: inline-flex; align-items: center; gap: 7px;
+    }
+    .btn-connect.is-connected::before {
+      content: ''; width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+      background: conic-gradient(var(--r1), var(--r2), var(--r3), var(--r4), var(--r5), var(--r6), var(--r7), var(--r1));
+    }
+    .btn-connect.is-connected:hover { filter: none; transform: none; }
+    .addr-block    {
+      display: none; position: relative; padding-top: 12px; margin-top: 2px;
+    }
+    .addr-block::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; border-radius: 2px;
+      background: linear-gradient(90deg, var(--r1), var(--r2), var(--r3), var(--r4), var(--r5), var(--r6), var(--r7));
+    }
     .addr-line     { font-size: 10px; color: var(--muted); margin-bottom: 2px; }
     .addr-value    { font-size: 11px; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
@@ -231,23 +281,30 @@
     .btn:disabled { opacity: 0.35; cursor: not-allowed; }
     .btn-mint { width: 100%; justify-content: center; padding: 13px; font-size: 13px; font-weight: 700; letter-spacing: 2px; background: linear-gradient(90deg, var(--r1), var(--r6)); border-color: transparent; }
     .btn-mint:hover:not(:disabled) { filter: brightness(1.12); border-color: transparent; }
+    .btn-random { width: 100%; justify-content: center; padding: 10px; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; margin-top: 8px; background: rgba(255,255,255,0.04); }
+    .btn-random:hover:not(:disabled) { background: rgba(255,255,255,0.09); }
 
     /* ── RIGHT COL ── */
     .right-col { display: flex; flex-direction: column; gap: 20px; }
-    .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px;
+    }
 
     /* ── COLLECTION GRID ── */
-    .collection-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    /* 8 across × 2 rows fits all 16 cards without the page needing to scroll */
+    .collection-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; }
 
     .mint-card {
-      border-radius: 8px; border: 1px solid var(--border);
+      border-radius: 8px; border: 1px solid rgba(255,255,255,0.14);
       overflow: hidden; cursor: pointer;
       transition: all 0.18s ease; position: relative; background: #080810;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.55);
     }
     .mint-card:hover:not(.minted):not(.coming) { border-color: rgba(123,81,255,0.55); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(100,60,220,0.22); }
     .mint-card.selected { border-color: var(--r6); box-shadow: 0 0 0 1px var(--r6), 0 8px 24px rgba(100,60,220,0.28); }
-    .mint-card.minted   { opacity: 0.35; cursor: not-allowed; filter: grayscale(0.7); }
-    .mint-card.coming   { opacity: 0.22; cursor: not-allowed; }
+    .mint-card.minted   { opacity: 0.6; cursor: not-allowed; filter: grayscale(0.7); }
+    .mint-card.coming   { opacity: 0.55; cursor: not-allowed; }
 
     /* animated frame area */
     .mc-img {
@@ -262,12 +319,13 @@
     }
     .mc-frame.fading { opacity: 0; }
 
-    /* mini glass layer */
+    /* mini glass layer — also darkens the thumbnail itself: the component-piece photos are
+       soft rainbow-cloud imagery that otherwise visually blends into the new page background
+       of the same palette, regardless of either layer's own opacity. Fully opaque, no
+       backdrop-filter — no ambiguity about what's sampled through from behind. */
     .mc-glass {
       position: absolute; inset: 0;
-      background: rgba(255,255,255,0.045);
-      -webkit-backdrop-filter: blur(10px) saturate(160%) brightness(1.04);
-      backdrop-filter: blur(10px) saturate(160%) brightness(1.04);
+      background: rgba(5,4,10,0.72);
       box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.42),
         inset 0 -1px 0 rgba(255,255,255,0.05),
@@ -297,18 +355,22 @@
     .mc-emoji { font-size: 20px; filter: drop-shadow(0 1px 6px rgba(0,0,0,0.8)); }
     .mc-cardnum { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.85); letter-spacing: 1px; }
 
-    /* bottom strip on each mini card */
-    .mc-strip {
-      position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
-      background: linear-gradient(90deg, var(--r1), var(--r2), var(--r3), var(--r4), var(--r5), var(--r6), var(--r7));
-    }
+    /* bottom strip on each mini card — color keyed to rarity tier so the grid reads at a glance */
+    .mc-strip { position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--r1); }
+    .mint-card[data-rarity="common"]    .mc-strip { background: rgba(255,255,255,0.3); }
+    .mint-card[data-rarity="uncommon"]  .mc-strip { background: var(--r4); }
+    .mint-card[data-rarity="rare"]      .mc-strip { background: var(--r5); }
+    .mint-card[data-rarity="epic"]      .mc-strip { background: var(--r6); }
+    .mint-card[data-rarity="legendary"] .mc-strip { background: var(--r2); }
+    .mint-card[data-rarity="exotic"]    .mc-strip { background: var(--r7); }
 
-    .mc-info { padding: 5px 7px; border-top: 1px solid var(--border); }
+    .mc-info { padding: 5px 7px; border-top: 1px solid var(--border); background: #080810; }
     .mc-num  { font-size: 9px; color: var(--muted); letter-spacing: 1px; }
     .mc-status { font-size: 9px; font-weight: 700; letter-spacing: 1px; margin-top: 2px; }
     .mc-status.available { color: var(--success); }
     .mc-status.minted    { color: var(--muted); }
     .mc-status.coming    { color: rgba(255,255,255,0.18); }
+    .mc-price { font-size: 9px; color: rgba(255,255,255,0.45); margin-top: 1px; letter-spacing: 0.5px; }
     .mc-overlay { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.55); align-items: center; justify-content: center; font-size: 20px; z-index: 3; }
     .mint-card.minted .mc-overlay { display: flex; }
 
@@ -329,6 +391,9 @@
     .json-pre { background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 8px; padding: 14px; font-size: 11px; color: #b0b0c0; line-height: 1.7; overflow: auto; max-height: 260px; white-space: pre; }
     .jk { color: #7b9fff; } .js { color: #78e08f; } .jn { color: #ffbb55; }
 
+    @media (max-width: 1100px) {
+      .collection-grid { grid-template-columns: repeat(4, 1fr); }
+    }
     @media (max-width: 740px) {
       .page { grid-template-columns: 1fr; }
       .left-col { position: static; }
@@ -337,6 +402,33 @@
   </style>
 </head>
 <body>
+
+<!-- SVG filter definitions for cloud displacement (shared aesthetic with ordinalrainbows.com) -->
+<svg id="svg-filters" style="position:absolute;width:0;height:0;overflow:hidden;" aria-hidden="true">
+  <defs>
+    <filter id="cloud-warp" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
+      <feTurbulence id="cloud-turb" type="fractalNoise" baseFrequency="0.009 0.011" numOctaves="4" seed="7" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="124" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="cloud-warp-b" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
+      <feTurbulence id="cloud-turb-b" type="fractalNoise" baseFrequency="0.010 0.009" numOctaves="4" seed="13" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="124" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+</svg>
+
+<!-- Background image layers (kept for JS compat, held at opacity 0) -->
+<div id="bgLayerA" class="background-container"></div>
+<div id="bgLayerB" class="background-container"></div>
+<!-- Cloud overlay layers: mix-blend-mode:screen over dark body = rainbow glow -->
+<div class="cloud-layer cloud-layer-1">
+  <div class="cloud-inner" id="cloud1A"></div>
+  <div class="cloud-inner" id="cloud1B"></div>
+</div>
+<div class="cloud-layer cloud-layer-2">
+  <div class="cloud-inner" id="cloud2A"></div>
+  <div class="cloud-inner" id="cloud2B"></div>
+</div>
 
 <div class="rainbow-bar"></div>
 <header>
@@ -362,6 +454,7 @@
         <div class="preview-sub">ANIMATED SERIES</div>
         <div class="preview-badge">LEGENDARY EDITION</div>
         <div class="preview-num" id="previewNum">TEST MINT</div>
+        <div class="preview-price" id="previewPrice">…</div>
       </div>
       <div class="preview-strip"></div>
     </div>
@@ -391,10 +484,15 @@
 
     <div class="wallet-section">
       <div class="section-label">Wallet</div>
+      <div class="wallet-invite" id="walletInvite">
+        <div class="wallet-ring"><div class="wallet-ring-inner">🌈</div></div>
+        <div class="wallet-headline">hey fren, connect your wallet</div>
+        <div class="wallet-sub">Yours Wallet or any BRC-100 wallet — we got you</div>
+      </div>
       <div id="walletNotice"></div>
       <div class="wallet-row">
-        <button class="btn" id="connectBtn">⬡ Connect</button>
-        <div class="addr-block">
+        <button class="btn btn-connect" id="connectBtn">⬡ Connect</button>
+        <div class="addr-block" id="addrBlock">
           <div class="addr-line">BSV address</div>
           <div class="addr-value" id="bsvAddrEl">—</div>
           <div class="addr-line" style="margin-top:5px">Ordinals address</div>
@@ -425,6 +523,7 @@
         </div>
       </div>
       <button class="btn btn-mint" id="mintBtn" disabled>⬡ MINT NOW</button>
+      <button class="btn btn-random" id="mintRandomBtn" disabled>🎲 MINT 10 RANDOM</button>
       <div id="statusMsg">Select a card and connect wallet</div>
       <div id="resultArea"></div>
       <div id="fallbackBox">
@@ -439,650 +538,8 @@
   </div>
 </div>
 
-<script>
-const PLATFORM_WALLET = '16wcgzMqnRW5gF8nizaRBZzjMBmQR7rsZQ';  // 5%  platform treasury
-const CREATOR_WALLET  = '1EzJ8LuUN3EGUkw5RxiKDyazEkpNVkY26S';  // 70% artist/creator
-const HOLDER_WALLET   = '1r1rJXu5znptbcSKYuFW74eDZ3zJtsAwb';   // 25% holder reward pool
-const PLATFORM_PCT = 5, ARTIST_PCT = 70, HOLDER_PCT = 25;
-const COLLECTION = 'ordinal-gif-test';
-const API_BASE   = 'https://ordinals.gorillapool.io/content/';
-
-const MINT_PRICE_BSV  = 0.64;
-const SATOSHIS_PER_BSV = 100000000;
-const MINT_PRICE_SATS  = Math.round(MINT_PRICE_BSV * SATOSHIS_PER_BSV); // 64000000
-
-// Split amounts in satoshis — must sum exactly to MINT_PRICE_SATS
-const PLATFORM_SATS = Math.round(MINT_PRICE_SATS * PLATFORM_PCT / 100); //  3200000 (5%)
-const HOLDER_SATS   = Math.round(MINT_PRICE_SATS * HOLDER_PCT   / 100); // 16000000 (25%)
-const CREATOR_SATS  = MINT_PRICE_SATS - PLATFORM_SATS - HOLDER_SATS;   // 44800000 (70%) — remainder avoids rounding drift
-
-const BASE_ORDINALS = [
-  '8f966e873f5afd0a8712c83207d6d43ffaba7eabfe5c36dbdd6d702102f3fb8a',
-  '7e64760635f1526de060b327d11ca303c71fa53f630d0635694117f42c723d23',
-  '71243868d8a334ac2df558e017e59bcf5a9c3042195ae0ece8852c6e0682f37a',
-  '19a1e5047dcb0b91991007863b9112e121e374f2e24710bd7d06571706cb5182',
-  '93f79b45ac8f5d1ef218bb67426aefe53458081010119a620a7bc77f220c74d3',
-  '3e3b8082610574a01eeefedbceb8da0b29742cc4358392c9ebe7372b06171cb4',
-  '78e6ca0d142042a368b7bd20080c2bc224d6233a944a2d8dab15763589ee4346',
-  '0874b7ace03c44299b0a0e4f32631b30c74e84ed6200fa97408685751d9ff223'
-];
-
-// Update status to 'available' or 'minted' as the collection evolves
-const CARD_SETS = {
-  A: {
-    file: 'index.html',
-    ordinals: [
-      '8f966e873f5afd0a8712c83207d6d43ffaba7eabfe5c36dbdd6d702102f3fb8a',
-      '7e64760635f1526de060b327d11ca303c71fa53f630d0635694117f42c723d23',
-      '71243868d8a334ac2df558e017e59bcf5a9c3042195ae0ece8852c6e0682f37a',
-      '19a1e5047dcb0b91991007863b9112e121e374f2e24710bd7d06571706cb5182',
-      '93f79b45ac8f5d1ef218bb67426aefe53458081010119a620a7bc77f220c74d3',
-      '3e3b8082610574a01eeefedbceb8da0b29742cc4358392c9ebe7372b06171cb4',
-      '78e6ca0d142042a368b7bd20080c2bc224d6233a944a2d8dab15763589ee4346',
-      '0874b7ace03c44299b0a0e4f32631b30c74e84ed6200fa97408685751d9ff223'
-    ]
-  },
-  B: {
-    file: 'index-b.html',
-    ordinals: [
-      '78e6ca0d142042a368b7bd20080c2bc224d6233a944a2d8dab15763589ee4346',
-      '50184e4be6267bc2c00ce72efe51cafad535dfea05b25232fef64dd4367369e2',
-      'e681e0e13d14ab786884358330e8e74858758562208411f0416ff77c68bda4ee',
-      'e75c7f265941dde250f1cec7d4f55e4d6984b72e757a57e8ca9de088b383f48a',
-      '0874b7ace03c44299b0a0e4f32631b30c74e84ed6200fa97408685751d9ff223',
-      '1a6cb972cb0cd30fa8a30ec63b550f11719add091b6bcc54f77730c58cbf247c',
-      'a2a5c43d25471df04c210a8c1083ec9f80a6d72dd9f0df0cb6bb76a4fe4b27bb',
-      'ee4ae453040c5761f5b5a332bb97bc92a37fdcb3d62b101c960da87ec28d0fa6'
-    ]
-  },
-  C: {
-    file: 'index-c.html',
-    ordinals: [
-      '50184e4be6267bc2c00ce72efe51cafad535dfea05b25232fef64dd4367369e2',
-      'e681e0e13d14ab786884358330e8e74858758562208411f0416ff77c68bda4ee',
-      'e75c7f265941dde250f1cec7d4f55e4d6984b72e757a57e8ca9de088b383f48a',
-      '1a6cb972cb0cd30fa8a30ec63b550f11719add091b6bcc54f77730c58cbf247c',
-      'a2a5c43d25471df04c210a8c1083ec9f80a6d72dd9f0df0cb6bb76a4fe4b27bb',
-      'ee4ae453040c5761f5b5a332bb97bc92a37fdcb3d62b101c960da87ec28d0fa6',
-      '19a1e5047dcb0b91991007863b9112e121e374f2e24710bd7d06571706cb5182',
-      '93f79b45ac8f5d1ef218bb67426aefe53458081010119a620a7bc77f220c74d3'
-    ]
-  },
-  D: {
-    file: 'index-d.html',
-    ordinals: [
-      '3e3b8082610574a01eeefedbceb8da0b29742cc4358392c9ebe7372b06171cb4',
-      '7e64760635f1526de060b327d11ca303c71fa53f630d0635694117f42c723d23',
-      '71243868d8a334ac2df558e017e59bcf5a9c3042195ae0ece8852c6e0682f37a',
-      '8f966e873f5afd0a8712c83207d6d43ffaba7eabfe5c36dbdd6d702102f3fb8a',
-      '1a6cb972cb0cd30fa8a30ec63b550f11719add091b6bcc54f77730c58cbf247c',
-      'a2a5c43d25471df04c210a8c1083ec9f80a6d72dd9f0df0cb6bb76a4fe4b27bb',
-      'ee4ae453040c5761f5b5a332bb97bc92a37fdcb3d62b101c960da87ec28d0fa6',
-      'e75c7f265941dde250f1cec7d4f55e4d6984b72e757a57e8ca9de088b383f48a'
-    ]
-  },
-  E: {
-    file: 'index-e.html',
-    ordinals: [
-      'e681e0e13d14ab786884358330e8e74858758562208411f0416ff77c68bda4ee',
-      '50184e4be6267bc2c00ce72efe51cafad535dfea05b25232fef64dd4367369e2',
-      '3e3b8082610574a01eeefedbceb8da0b29742cc4358392c9ebe7372b06171cb4',
-      '8f966e873f5afd0a8712c83207d6d43ffaba7eabfe5c36dbdd6d702102f3fb8a',
-      '71243868d8a334ac2df558e017e59bcf5a9c3042195ae0ece8852c6e0682f37a',
-      'ee4ae453040c5761f5b5a332bb97bc92a37fdcb3d62b101c960da87ec28d0fa6',
-      'a2a5c43d25471df04c210a8c1083ec9f80a6d72dd9f0df0cb6bb76a4fe4b27bb',
-      '93f79b45ac8f5d1ef218bb67426aefe53458081010119a620a7bc77f220c74d3'
-    ]
-  },
-  F: {
-    file: 'index-f.html',
-    ordinals: [
-      '1a6cb972cb0cd30fa8a30ec63b550f11719add091b6bcc54f77730c58cbf247c',
-      '78e6ca0d142042a368b7bd20080c2bc224d6233a944a2d8dab15763589ee4346',
-      '92386fa66c0272f5b32eec44c5e3136f6c7550c622ddb1cf3fbee22d56b42bef',
-      'e681e0e13d14ab786884358330e8e74858758562208411f0416ff77c68bda4ee',
-      '50184e4be6267bc2c00ce72efe51cafad535dfea05b25232fef64dd4367369e2',
-      '93f79b45ac8f5d1ef218bb67426aefe53458081010119a620a7bc77f220c74d3',
-      '19a1e5047dcb0b91991007863b9112e121e374f2e24710bd7d06571706cb5182',
-      '7e64760635f1526de060b327d11ca303c71fa53f630d0635694117f42c723d23'
-    ]
-  }
-};
-
-// 6 available cards scattered across the grid — rest coming soon
-const AVAILABLE = { 0:'F', 3:'B', 7:'C', 11:'D', 15:'E', 4:'A' };
-const SET_KEYS = ['A','B','C','D','E','F'];
-const CARDS = Array.from({length:16}, (_,i) => {
-  const setKey = AVAILABLE[i];
-  if (setKey) return {
-    num: i+1, status:'available',
-    pieceId: `test-00${Object.keys(AVAILABLE).indexOf(String(i))+1}`,
-    set: CARD_SETS[setKey], rarity:'common'
-  };
-  return {
-    num: i+1, status:'coming',
-    pieceId: `legacy-${String(i+1).padStart(3,'0')}`,
-    set: CARD_SETS[SET_KEYS[i % 5]], rarity:'common'
-  };
-});
-
-let connected=false, bsvAddress='', ordAddress='';
-let selectedCard=CARDS[0], previewFrame=0, previewTimer=null, isFading=false;
-
-const $ = id => document.getElementById(id);
-const walletNotice=$('walletNotice'), connectBtn=$('connectBtn');
-const bsvAddrEl=$('bsvAddrEl'), ordAddrEl=$('ordAddrEl'), dArtist=$('dArtist');
-const dPiece=$('dPiece'), dEdition=$('dEdition');
-const mintBtn=$('mintBtn'), statusMsg=$('statusMsg'), resultArea=$('resultArea');
-const jsonView=$('jsonView'), fallbackBox=$('fallbackBox'), fallbackText=$('fallbackText'), copyBtn=$('copyBtn');
-const previewImg=$('previewImg'), previewNum=$('previewNum'), collGrid=$('collectionGrid');
-
-function init() {
-  if (!window.yours) { walletNotice.style.display='block'; walletNotice.textContent='⚠ Install Yours Wallet to mint'; connectBtn.disabled=true; }
-  buildGrid();
-  selectCard(CARDS[0]); // selectCard calls startPreview with correct ordinals
-  initPreviewControls();
-  updateJSON();
-}
-
-function buildGrid() {
-  CARDS.forEach((card, i) => {
-    const el = document.createElement('div');
-    el.className = 'mint-card ' + card.status;
-    el.dataset.num = card.num;
-    const labels = {available:'MINT NOW', minted:'MINTED', coming:'COMING SOON'};
-    // Each card shows its own first ordinal (or shared pool for coming cards)
-    const thumb = API_BASE + card.set.ordinals[0] + '_0';
-
-    el.innerHTML = `
-      <div class="mc-img">
-        <img class="mc-frame" src="${thumb}" alt="#${card.num}" />
-        <div class="mc-glass"></div>
-        <div class="mc-label">
-          <span class="mc-emoji">🌈</span>
-          <span class="mc-cardnum">#${card.num}</span>
-        </div>
-        <div class="mc-strip"></div>
-      </div>
-      <div class="mc-overlay">🔒</div>
-      <div class="mc-info">
-        <div class="mc-num">#${String(card.num).padStart(2,'0')} / 16</div>
-        <div class="mc-status ${card.status}">${labels[card.status]}</div>
-      </div>`;
-
-    // Available cards: click to select + load preview
-    if (card.status === 'available') {
-      el.addEventListener('click', () => selectCard(card));
-    }
-    // Coming soon cards: click to show "coming soon" in status area
-    if (card.status === 'coming') {
-      el.style.cursor = 'pointer';
-      el.addEventListener('click', () => {
-        document.querySelectorAll('.mint-card').forEach(c => c.classList.remove('selected'));
-        el.classList.add('selected');
-        statusMsg.textContent = 'Coming soon — stay tuned 🌈';
-        mintBtn.disabled = true;
-        mintBtn.textContent = 'COMING SOON';
-        resultArea.innerHTML = '';
-        setTimeout(() => { mintBtn.textContent = '⬡ MINT NOW'; }, 2000);
-      });
-    }
-
-    collGrid.appendChild(el);
-    animateCard(el, i, card.set.ordinals);
-  });
-}
-
-// Global grid speed multiplier — 1.0 = default, 0.5 = half speed, 2.0 = double
-let gridSpeedMult = 1.0;
-
-// Each mini card cycles through frames independently at a gentle pace
-function animateCard(cardEl, offset, ordinals) {
-  const frames = ordinals || BASE_ORDINALS;
-  const imgEl = cardEl.querySelector('.mc-frame');
-  if (!imgEl) return;
-  let frame = offset % frames.length;
-  let fading = false;
-  const baseInterval = 2200 + (offset * 180);
-
-  function tick() {
-    const interval = baseInterval / gridSpeedMult;
-    setTimeout(() => {
-      if (!fading) {
-        fading = true;
-        const fadeDur = Math.min(interval * 0.4, 1200 / gridSpeedMult);
-        imgEl.style.transition = `opacity ${fadeDur}ms ease-in-out`;
-        imgEl.style.opacity = '0';
-        setTimeout(() => {
-          frame = (frame + 1) % frames.length;
-          imgEl.src = API_BASE + frames[frame] + '_0';
-          imgEl.style.opacity = '1';
-          fading = false;
-          tick();
-        }, fadeDur);
-      } else {
-        tick();
-      }
-    }, interval);
-  }
-
-  setTimeout(tick, offset * 320);
-}
-
-function selectCard(card) {
-  selectedCard = card;
-  document.querySelectorAll('.mint-card').forEach(el => el.classList.toggle('selected', +el.dataset.num===card.num));
-  dPiece.textContent   = card.pieceId;
-  dEdition.textContent = `${card.num} of 16`;
-  previewNum.textContent = `CARD #${card.num} OF 16`;
-  if (card.status==='available') { mintBtn.disabled=!connected; statusMsg.textContent=connected?'Ready to mint':'Connect wallet to mint'; }
-  else if (card.status==='minted') { mintBtn.disabled=true; statusMsg.textContent='Already minted'; }
-  else { mintBtn.disabled=true; statusMsg.textContent='Not yet available'; }
-  previewFrame = 0;
-  startPreview(card.set.ordinals);
-  updateJSON();
-}
-
-let previewSpeed = 2800, previewFade = 400, previewPaused = false;
-
-function startPreview(ordinals) {
-  const frames = ordinals || (selectedCard && selectedCard.set ? selectedCard.set.ordinals : BASE_ORDINALS);
-  if (previewTimer) { clearInterval(previewTimer); previewTimer = null; }
-  isFading = false;
-  previewImg.style.transition = `opacity ${previewFade}ms ease-in-out`;
-  previewImg.src = API_BASE + frames[previewFrame] + '_0';
-
-  previewTimer = setInterval(()=>{
-    if (previewPaused) return;
-    previewImg.style.opacity = '0';
-    setTimeout(()=>{
-      previewFrame = (previewFrame+1) % frames.length;
-      previewImg.src = API_BASE + frames[previewFrame] + '_0';
-      previewImg.style.opacity = '1';
-    }, previewFade);
-  }, previewSpeed);
-}
-// ── CUSTOM RAINBOW SLIDER DRAG LOGIC ────────────────────────
-function initCustomSlider(trackEl, thumbEl, nativeInput, onUpdate) {
-  const INSET = 10; // matches left/right on .rb-track
-  function pctFromEvent(e) {
-    const rect = trackEl.getBoundingClientRect();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const usable = rect.width - INSET * 2;
-    return Math.max(0, Math.min(1, (clientX - rect.left - INSET) / usable));
-  }
-  function pctToValue(pct) {
-    const min = parseFloat(nativeInput.min);
-    const max = parseFloat(nativeInput.max);
-    const step = parseFloat(nativeInput.step) || 1;
-    return Math.round((min + pct * (max - min)) / step) * step;
-  }
-  function setThumbFromValue(val) {
-    const min = parseFloat(nativeInput.min);
-    const max = parseFloat(nativeInput.max);
-    const pct = (val - min) / (max - min);
-    const rect = trackEl.getBoundingClientRect();
-    const usable = rect.width - INSET * 2;
-    thumbEl.style.left = (INSET + pct * usable) + 'px';
-    // Stops match CSS gradient: 0% 14% 28% 42% 57% 71% 85% 100%
-    const stops = [
-      { p: 0.00, c: [255,  0,  0] },
-      { p: 0.14, c: [255,102,  0] },
-      { p: 0.28, c: [255,238,  0] },
-      { p: 0.42, c: [  0,204, 68] },
-      { p: 0.57, c: [  0,204,255] },
-      { p: 0.71, c: [102, 51,255] },
-      { p: 0.85, c: [204,  0,255] },
-      { p: 1.00, c: [255,  0,102] },
-    ];
-    let lo = stops[0], hi = stops[1];
-    for (let i = 0; i < stops.length - 1; i++) {
-      if (pct >= stops[i].p && pct <= stops[i+1].p) { lo = stops[i]; hi = stops[i+1]; break; }
-    }
-    const range = hi.p - lo.p || 0.001;
-    const t = (pct - lo.p) / range;
-    const r = Math.round(lo.c[0]+(hi.c[0]-lo.c[0])*t);
-    const g = Math.round(lo.c[1]+(hi.c[1]-lo.c[1])*t);
-    const b = Math.round(lo.c[2]+(hi.c[2]-lo.c[2])*t);
-    thumbEl.style.webkitBackdropFilter = `blur(6px) saturate(200%) brightness(1.3)`;
-    thumbEl.style.backdropFilter        = `blur(6px) saturate(200%) brightness(1.3)`;
-    thumbEl.style.background = `radial-gradient(circle at 40% 35%, rgba(255,255,255,0.55), rgba(${r},${g},${b},0.45) 60%, rgba(${r},${g},${b},0.7))`;
-    thumbEl.style.borderColor = `rgba(${r},${g},${b},0.95)`;
-    thumbEl.style.boxShadow = `0 2px 10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.7), 0 0 10px rgba(${r},${g},${b},0.6)`;
-  }
-
-  // Defer init until layout is complete
-  requestAnimationFrame(() => setThumbFromValue(parseFloat(nativeInput.value)));
-
-  let dragging = false;
-  function onMove(e) {
-    if (!dragging) return;
-    e.preventDefault();
-    const pct = pctFromEvent(e);
-    const val = pctToValue(pct);
-    nativeInput.value = val;
-    setThumbFromValue(val);
-    onUpdate();
-  }
-  function onUp() {
-    dragging = false;
-    thumbEl.classList.remove('dragging');
-    window.removeEventListener('mousemove', onMove);
-    window.removeEventListener('mouseup', onUp);
-    window.removeEventListener('touchmove', onMove);
-    window.removeEventListener('touchend', onUp);
-  }
-  function onDown(e) {
-    dragging = true;
-    thumbEl.classList.add('dragging');
-    onMove(e);
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
-    window.addEventListener('touchmove', onMove, { passive: false });
-    window.addEventListener('touchend', onUp);
-  }
-  thumbEl.addEventListener('mousedown', onDown);
-  thumbEl.addEventListener('touchstart', onDown, { passive: false });
-  trackEl.addEventListener('mousedown', onDown);
-  trackEl.addEventListener('touchstart', onDown, { passive: false });
-
-  // Expose setter so initPreviewControls can sync thumb when max changes
-  return { setThumbFromValue };
-}
-
-function initPreviewControls() {
-  const spdSlider = $('spdSlider'), spdVal = $('spdVal');
-  const fadeSlider = $('fadeSlider'), fadeVal = $('fadeVal');
-  const pauseBtn = $('pauseBtn');
-
-  // SPD: right=fast, value inverted
-  spdSlider.min = 200; spdSlider.max = 5000; spdSlider.value = 2800; spdSlider.step = 100;
-  fadeSlider.min = 50; fadeSlider.max = 1120; fadeSlider.value = 400; fadeSlider.step = 50;
-
-  const getSpdMs = () => (5000 + 200 - parseInt(spdSlider.value));
-
-  function onSpdUpdate() {
-    previewSpeed = getSpdMs();
-    // Sync grid cards — default speed is ~2200ms, we scale relative to that
-    gridSpeedMult = 2200 / previewSpeed;
-    const maxFade = Math.floor(previewSpeed * 0.4);
-    fadeSlider.max = maxFade;
-    if (previewFade > maxFade) {
-      previewFade = maxFade;
-      fadeSlider.value = maxFade;
-      fadeVal.textContent = (previewFade/1000).toFixed(1) + 's';
-      previewImg.style.transition = `opacity ${previewFade}ms ease-in-out`;
-      fadeCtrl.setThumbFromValue(maxFade);
-    }
-    spdVal.textContent = (previewSpeed/1000).toFixed(1) + 's';
-    startPreview(selectedCard && selectedCard.set ? selectedCard.set.ordinals : null);
-  }
-
-  function onFadeUpdate() {
-    previewFade = parseInt(fadeSlider.value);
-    fadeVal.textContent = (previewFade/1000).toFixed(1) + 's';
-    previewImg.style.transition = `opacity ${previewFade}ms ease-in-out`;
-  }
-
-  const spdCtrl  = initCustomSlider($('spdTrackEl'),  $('spdThumb'),  spdSlider,  onSpdUpdate);
-  const fadeCtrl = initCustomSlider($('fadeTrackEl'), $('fadeThumb'), fadeSlider, onFadeUpdate);
-
-  // Init display values
-  spdVal.textContent  = (getSpdMs()/1000).toFixed(1) + 's';
-  fadeVal.textContent = (400/1000).toFixed(1) + 's';
-
-  pauseBtn.addEventListener('click', ()=>{
-    previewPaused = !previewPaused;
-    pauseBtn.textContent = previewPaused ? '▶' : '⏸';
-    pauseBtn.classList.toggle('paused', previewPaused);
-    if (!previewPaused) previewImg.style.opacity = '1';
-  });
-}
-
-function buildInscription() {
-  return {
-    p:'ord', collection:COLLECTION, piece_id:selectedCard.pieceId,
-    edition:`${selectedCard.num}/16`, artist:bsvAddress||'', ord_address:ordAddress||'',
-    base_ordinals:BASE_ORDINALS.slice(),
-    revenue_share:{artist_pct:ARTIST_PCT, holder_pool_pct:HOLDER_PCT, platform_pct:PLATFORM_PCT, platform_wallet:PLATFORM_WALLET},
-    platform:'splash', version:'1.0'
-  };
-}
-
-function highlight(obj) {
-  return JSON.stringify(obj,null,2)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, m=>{
-      if(/^"/.test(m)) return/:$/.test(m)?`<span class="jk">${m}</span>`:`<span class="js">${m}</span>`;
-      return `<span class="jn">${m}</span>`;
-    });
-}
-function updateJSON() { jsonView.innerHTML = highlight(buildInscription()); }
-
-connectBtn.addEventListener('click', async ()=>{
-  if (!window.yours) { walletNotice.style.display='block'; return; }
-  connectBtn.disabled=true; connectBtn.textContent='...'; resultArea.innerHTML='';
-  try {
-    // Step 1: connect (user approves site access)
-    await window.yours.connect();
-
-    // Step 2: get addresses — separate call per Yours Wallet API docs
-    const addrs = await window.yours.getAddresses();
-
-    bsvAddress = addrs?.bsvAddress || '';
-    ordAddress = addrs?.ordAddress || addrs?.ord || '';
-
-    if (!bsvAddress) throw new Error('Connected but could not read address. Check console.');
-
-    bsvAddrEl.textContent=bsvAddress; ordAddrEl.textContent=ordAddress||'(same as BSV)'; dArtist.textContent=bsvAddress;
-    connected=true; connectBtn.textContent='✓ Connected'; walletNotice.style.display='none';
-    if (selectedCard.status==='available'){mintBtn.disabled=false; statusMsg.textContent='Ready to mint';}
-    updateJSON();
-  } catch(err){
-    connectBtn.disabled=false; connectBtn.textContent='⬡ Connect';
-    resultArea.innerHTML=`<span class="result-error">${err.message||err}</span>`;
-  }
-});
-
-mintBtn.addEventListener('click', async ()=>{
-  resultArea.innerHTML=''; fallbackBox.style.display='none';
-  if (!window.yours){resultArea.innerHTML='<span class="result-error">Yours Wallet not installed.</span>';return;}
-  if (!connected){resultArea.innerHTML='<span class="result-error">Connect wallet first.</span>';return;}
-  if (selectedCard.status!=='available'){resultArea.innerHTML='<span class="result-error">Card not available.</span>';return;}
-
-  mintBtn.disabled=true; mintBtn.textContent='... Fetching'; statusMsg.textContent='Loading card HTML...';
-
-  try {
-    // ── STEP 1: Load index.html content ─────────────────────────
-    const indexFile = selectedCard.set ? selectedCard.set.file : 'index.html';
-    let htmlContent;
-    try {
-      const resp = await fetch(indexFile);
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      htmlContent = await resp.text();
-    } catch(fetchErr) {
-      throw new Error(`Could not load ${indexFile}: ${fetchErr.message}. Make sure all index files are in the same folder.`);
-    }
-
-    // ── STEP 2: BSV PAYMENT (3-WAY SPLIT) ───────────────────────
-    mintBtn.textContent = '... Payment';
-    statusMsg.textContent = `Sending ${MINT_PRICE_BSV} BSV — approve in wallet...`;
-    resultArea.innerHTML = `<div style="color:rgba(255,255,255,0.5);font-size:11px">
-      Splitting <strong style="color:#fff">${MINT_PRICE_BSV} BSV</strong> in one transaction:<br><br>
-      <span style="color:rgba(255,255,255,0.35)">
-        🎨 Creator &nbsp;&nbsp; ${(CREATOR_SATS/SATOSHIS_PER_BSV).toFixed(4)} BSV (${ARTIST_PCT}%)<br>
-        🏊 Holder pool &nbsp; ${(HOLDER_SATS/SATOSHIS_PER_BSV).toFixed(4)} BSV (${HOLDER_PCT}%)<br>
-        ⬡ &nbsp;Platform &nbsp;&nbsp; ${(PLATFORM_SATS/SATOSHIS_PER_BSV).toFixed(4)} BSV (${PLATFORM_PCT}%)
-      </span>
-    </div>`;
-
-    let paymentTxid;
-    try {
-      const paymentResult = await window.yours.sendBsv([
-        { satoshis: CREATOR_SATS,  address: CREATOR_WALLET  },
-        { satoshis: HOLDER_SATS,   address: HOLDER_WALLET   },
-        { satoshis: PLATFORM_SATS, address: PLATFORM_WALLET }
-      ]);
-
-      paymentTxid = typeof paymentResult === 'string'
-        ? paymentResult
-        : (paymentResult?.txid || paymentResult?.txId || paymentResult?.id || null);
-
-      if (!paymentTxid) throw new Error('Payment completed but no TXID returned.');
-
-    } catch(payErr) {
-      if (payErr.message?.toLowerCase().includes('cancel') ||
-          payErr.message?.toLowerCase().includes('reject') ||
-          payErr.message?.toLowerCase().includes('denied') ||
-          payErr.message?.toLowerCase().includes('user')) {
-        resultArea.innerHTML='<span class="result-error">Payment cancelled — mint aborted.</span>';
-        statusMsg.textContent='Cancelled';
-      } else {
-        resultArea.innerHTML=`<span class="result-error">Payment failed: ${payErr.message||payErr}<br>Mint aborted — nothing was inscribed.</span>`;
-        statusMsg.textContent='Payment failed';
-      }
-      mintBtn.disabled=false; mintBtn.textContent='⬡ MINT NOW';
-      return;
-    }
-
-    // Payment confirmed ✓
-    resultArea.innerHTML=`
-      <div class="result-success" style="margin-bottom:7px">✓ Payment confirmed — 3-way split complete</div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:4px">🎨 ${(CREATOR_SATS/SATOSHIS_PER_BSV).toFixed(4)} BSV → creator</div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:4px">🏊 ${(HOLDER_SATS/SATOSHIS_PER_BSV).toFixed(4)} BSV → holder pool</div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:12px">⬡ ${(PLATFORM_SATS/SATOSHIS_PER_BSV).toFixed(4)} BSV → platform</div>
-      <div style="font-size:11px;color:rgba(255,255,255,0.3)">
-        TX: <a href="https://whatsonchain.com/tx/${paymentTxid}" target="_blank" style="color:#a0a0ff">${paymentTxid.slice(0,24)}…</a>
-      </div>`;
-
-    // ── STEP 3: INSCRIBE ─────────────────────────────────────────
-    mintBtn.textContent = '... Inscribing';
-    statusMsg.textContent = 'Payment done — approving inscription...';
-
-    let txid = null;
-    if (typeof window.yours.inscribe === 'function') {
-      htmlContent = htmlContent
-        .replace(/CARD #1 OF 16/g, `TEST MINT`)
-        .replace(/RAINBOW LEGENDS/g, `🌈 TEST`);
-
-      const base64Data = btoa(unescape(encodeURIComponent(htmlContent)));
-      const inscriptions = [{
-        address: ordAddress || bsvAddress,
-        base64Data: base64Data,
-        mimeType: 'text/html',
-        map: {
-          app: 'splash',
-          type: 'ord',
-          name: `Rainbow Legends #${selectedCard.num}`,
-          collection: COLLECTION,
-          piece_id: selectedCard.pieceId,
-          edition: `${selectedCard.num}/16`,
-          rarity: selectedCard.rarity || 'common',
-          payment_txid: paymentTxid,
-          payment_sats: String(MINT_PRICE_SATS),
-          creator_sats: String(CREATOR_SATS),
-          holder_sats:  String(HOLDER_SATS),
-          platform_sats: String(PLATFORM_SATS),
-          royalties: JSON.stringify([{
-            type: 'address',
-            destination: bsvAddress,
-            percentage: '0.025'
-          }]),
-          splash_meta: JSON.stringify(buildInscription())
-        }
-      }];
-
-      const res = await window.yours.inscribe(inscriptions);
-      txid = extractTxid(res);
-    } else {
-      fallbackBox.style.display='block'; fallbackText.value=jsonStr;
-      resultArea.innerHTML+=`<span class="result-error">Wallet does not support programmatic inscribe.<br>
-        Payment of ${MINT_PRICE_BSV} BSV was sent (TXID: ${paymentTxid}) — copy JSON below to inscribe manually.</span>`;
-      statusMsg.textContent='Manual fallback';
-      mintBtn.disabled=false; mintBtn.textContent='⬡ MINT NOW';
-      return;
-    }
-
-    // ── STEP 4: RESULT ───────────────────────────────────────────
-    if (!txid) {
-      resultArea.innerHTML += '<span class="result-error">Inscription may have succeeded but no TXID returned — check wallet history.</span>';
-      statusMsg.textContent = 'Done (no txid)';
-    } else {
-      statusMsg.textContent = 'Minted ✓';
-      resultArea.innerHTML = `
-        <div class="result-success" style="margin-bottom:7px">✓ Payment + Inscription complete</div>
-        <div style="margin-bottom:5px;font-size:11px;color:rgba(255,255,255,0.5)">
-          Payment: <a href="https://whatsonchain.com/tx/${paymentTxid}" target="_blank" style="color:#a0a0ff">${paymentTxid.slice(0,24)}…</a>
-        </div>
-        <div style="margin-bottom:5px;font-size:11px;color:rgba(255,255,255,0.5)">
-          Ordinal: <a href="https://whatsonchain.com/tx/${txid}" target="_blank" style="color:#a0a0ff">${txid}</a>
-        </div>
-        <div><a href="https://1sat.market/inscription/${txid}" target="_blank" style="color:#a0a0ff">→ View on 1sat.market</a></div>`;
-
-      // Seed reward_allocations in Supabase so holder can claim BSV
-      try {
-        statusMsg.textContent = 'Registering rewards...';
-        const seedResp = await fetch('https://ordinalrainbows-vol-1.vercel.app/api/seed-mint', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            inscription_id: txid,
-            nft_id: selectedCard.pieceId,
-            title: `Rainbow Legends #${selectedCard.num}`,
-            rarity: selectedCard.rarity || 'common',
-            rarity_multiplier: 1.0,
-            bsv_claimable: 0,
-            holder_pool_sats: HOLDER_SATS,
-            payment_txid: paymentTxid,
-            referenced_ordinals: selectedCard.set.ordinals
-          })
-        });
-        const seedJson = await seedResp.json();
-        if (seedResp.ok) {
-          statusMsg.textContent = 'Minted ✓ — rewards registered';
-          resultArea.innerHTML += `<div style="margin-top:6px;font-size:11px;color:#7fff7f">✓ Rewards registered — claimable on ORDINAL RAINBOWS site</div>`;
-        } else {
-          console.warn('Seed failed:', seedJson);
-          statusMsg.textContent = 'Minted ✓ — reward registration failed (manual fix needed)';
-        }
-      } catch(seedErr) {
-        console.warn('Seed error:', seedErr);
-        statusMsg.textContent = 'Minted ✓ — reward registration failed (manual fix needed)';
-      }
-
-      const el = collGrid.querySelector(`[data-num="${selectedCard.num}"]`);
-      if(el){
-        el.classList.remove('available','selected');
-        el.classList.add('minted');
-        el.querySelector('.mc-status').className='mc-status minted';
-        el.querySelector('.mc-status').textContent='MINTED';
-        el.querySelector('.mc-overlay').style.display='flex';
-      }
-    }
-
-  } catch(err) {
-    statusMsg.textContent = 'Error';
-    resultArea.innerHTML = `<span class="result-error">Error: ${err.message||err}</span>`;
-  } finally {
-    mintBtn.disabled=false;
-    mintBtn.textContent='⬡ MINT NOW';
-  }
-});
-
-function extractTxid(res){
-  if(!res)return null;
-  if(typeof res==='string'&&res.length===64)return res;
-  // Yours Wallet returns { txid, rawtx }
-  if(res.txid)return res.txid;
-  return res.tx||res.transactionId||res.txId||(res.id?.length===64?res.id:null);
-}
-
-copyBtn.addEventListener('click', async ()=>{
-  try{await navigator.clipboard.writeText(fallbackText.value);copyBtn.textContent='✓ Copied';setTimeout(()=>copyBtn.textContent='⎘ Copy JSON',1800);}
-  catch{copyBtn.textContent='Copy failed';}
-});
-
-window.addEventListener('load', init);
-</script>
+<script>window.BG_BASE_PATH = 'https://ordinalrainbows.com/images/';</script>
+<script src="/js/bg-anim.js"></script>
+<script type="module" src="/src/main.js"></script>
 </body>
 </html>
