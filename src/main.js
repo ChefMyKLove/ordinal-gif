@@ -16,6 +16,17 @@ const BACKEND_BASE = 'https://ordinalrainbows.com';
 const PRICE_API = `${BACKEND_BASE}/api/mint-price`;
 const PRICE_REFRESH_MS = 45000;
 
+// Admin test bypass: visit once with ?admin_secret=... and it's remembered in this browser via
+// localStorage. Sent as x-admin-secret on settlement calls only (lib/launch-gate.js on the
+// backend) — never on the public, read-only price fetch.
+const urlSecret = new URLSearchParams(location.search).get('admin_secret');
+if (urlSecret) { try { localStorage.setItem('ordinalAdminSecret', urlSecret); } catch {} }
+let ADMIN_SECRET = '';
+try { ADMIN_SECRET = localStorage.getItem('ordinalAdminSecret') || ''; } catch {}
+const adminHeaders = () => ADMIN_SECRET ? { 'x-admin-secret': ADMIN_SECRET } : {};
+
+let MINT_OPEN = false; // set from the server on every price fetch — never trust a client guess
+
 function fmtPrice(sats) {
   if (sats == null) return '…';
   const n = Number(sats);
@@ -39,14 +50,29 @@ async function fetchPrices() {
       body: JSON.stringify({ card_ids: CARDS.map(c => c.pieceId) }),
     });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const { prices } = await resp.json();
+    const { prices, mint_open } = await resp.json();
+    MINT_OPEN = Boolean(mint_open);
     CARDS.forEach(card => {
       const p = prices[card.pieceId];
       if (p) { card.priceSats = Number(p.price_sats); card.windowOpen = p.window_open; }
     });
     refreshPriceDisplays();
+    updateMintAvailability();
   } catch (err) {
     console.warn('[prices] fetch failed (will retry):', err.message);
+  }
+}
+
+// The real gate is server-side (lib/launch-gate.js) — this only decides what the button looks
+// like. A wrong/missing admin secret just means the server rejects the mint call with a clear
+// error later; nothing here can let an unauthorized mint actually settle.
+function updateMintAvailability() {
+  const open = MINT_OPEN || Boolean(ADMIN_SECRET);
+  if (adminBadge) adminBadge.style.display = ADMIN_SECRET ? 'block' : 'none';
+  if (!open) {
+    mintBtn.disabled = true;
+    mintRandomBtn.disabled = true;
+    statusMsg.textContent = 'Minting opens soon — stay tuned 🌈';
   }
 }
 
@@ -94,6 +120,7 @@ const mintBtn=$('mintBtn'), mintRandomBtn=$('mintRandomBtn'), statusMsg=$('statu
 const jsonView=$('jsonView'), fallbackBox=$('fallbackBox'), fallbackText=$('fallbackText'), copyBtn=$('copyBtn');
 const previewImg=$('previewImg'), previewNum=$('previewNum'), collGrid=$('collectionGrid');
 const previewPrice=$('previewPrice');
+const adminBadge=$('adminBadge');
 
 async function init() {
   // Don't probe window.yours synchronously here — extensions often inject it a beat after
@@ -207,6 +234,7 @@ function selectCard(card) {
   previewFrame = 0;
   startPreview(card.set.ordinals);
   updateJSON();
+  updateMintAvailability();
 }
 
 let previewSpeed = 2800, previewFade = 400, previewPaused = false;
@@ -403,6 +431,7 @@ function onWalletConnected(result) {
   if (selectedCard && selectedCard.status==='available'){mintBtn.disabled=false; statusMsg.textContent='Ready to mint';}
   mintRandomBtn.disabled=false;
   updateJSON();
+  updateMintAvailability();
 }
 
 connectBtn.addEventListener('click', async ()=>{
@@ -590,7 +619,7 @@ mintBtn.addEventListener('click', async ()=>{
           statusMsg.textContent = `Registering rewards... (${attempt}/${MAX_SEED_ATTEMPTS})`;
           const seedResp = await fetch(`${BACKEND_BASE}/api/mint-complete`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', ...adminHeaders() },
             body: seedBody
           });
           const seedJson = await seedResp.json();
@@ -744,7 +773,7 @@ mintRandomBtn.addEventListener('click', async () => {
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
       statusMsg.textContent = `Registering rewards for ${picks.length} cards... (${attempt}/${MAX_ATTEMPTS})`;
       const resp = await fetch(`${BACKEND_BASE}/api/mint-complete-batch`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...adminHeaders() },
         body: JSON.stringify({ payment_txid: batchTxid, items: seedItems }),
       });
       const json = await resp.json();

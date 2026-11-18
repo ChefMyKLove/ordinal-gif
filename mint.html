@@ -399,9 +399,17 @@
       .left-col { position: static; }
       .collection-grid { grid-template-columns: repeat(4, 1fr); }
     }
+    #adminBadge {
+      display: none; position: fixed; top: 10px; right: 10px; z-index: 999;
+      background: rgba(255,207,138,0.15); border: 1px solid rgba(255,207,138,0.4);
+      color: var(--notice); font-size: 10px; letter-spacing: 1px; padding: 5px 10px;
+      border-radius: 20px; pointer-events: none;
+    }
   </style>
 </head>
 <body>
+
+<div id="adminBadge">🔑 ADMIN TEST MODE</div>
 
 <!-- SVG filter definitions for cloud displacement (shared aesthetic with ordinalrainbows.com) -->
 <svg id="svg-filters" style="position:absolute;width:0;height:0;overflow:hidden;" aria-hidden="true">
